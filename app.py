@@ -161,23 +161,17 @@ Every question must be analyzed contextually. NEVER force-fit unrelated laws. Ad
 1. CONTEXTUAL POLICY CITATION (SUBSTANCE ONLY):
 Cite ONLY the specific acts, standards, or guidelines governing that domain and state WHAT the policy actually mandates (e.g., Food Hygiene & Quality Act 2081 Sec 14 for MRL/traceability, Seeds Act 2045 Sec 16 for Truthful Labeling, Plant Protection Act 2064 for PRA/quarantine, Subsidized Fertilizer Directives for nutrient quotas).
 
-2. STRICT MERMAID RULES (BOLD LETTERS, ATTRACTIVE COLORS, NO <br>):
-- ABSOLUTELY NEVER USE <br> OR <br/> TAGS: Write actual newlines inside strings.
+2. STRICT MERMAID RULES (PREVENT ALL PARSER CRASHES):
+- NODE IDENTIFIERS MUST START WITH LETTERS: Never use numbers as IDs like 1, 2, 3! ALWAYS write N1, N2, N3, or A1, A2, B1.
 - MAKE TOPICS BOLD: The very first line inside every node MUST be bold using **Topic Title**.
-- Format every node using Mermaid Markdown String syntax:
-  NodeID["`**1. Bold Topic Title**
+- ABSOLUTELY NEVER USE <br> OR <br/> TAGS: Use real newlines.
+- Format every node as:
+  N1["`**1. Bold Topic Title**
   • Technical Standard: xyz
   • Impact: abc
   • Policy Mandate: exact clause`"]
-- ALWAYS INCLUDE AND APPLY ATTRACTIVE COLOR CLASSES:
-  Include these classDef lines right after flowchart TD:
-  classDef cGreen fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46;
-  classDef cBlue fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e40af;
-  classDef cAmber fill:#fffbeb,stroke:#d97706,stroke-width:2px,color:#92400e;
-  classDef cRed fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
-  classDef cPurple fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#6b21a8;
-- Apply them to nodes: Node1:::cGreen, Node2:::cBlue, Node3:::cAmber, etc.
-- Never use rounded parenthesis node shapes NodeID(...).
+- NEVER use rounded parenthesis node shapes like N1(...).
+- ALWAYS end classDef lines with a semicolon (;).
 
 CATALOG OF 30 DYNAMIC VISUAL ARCHETYPES:
 [Flowchart, Cycle Diagram, Cause–Effect Diagram, Fishbone (Ishikawa), Problem Tree, Solution Tree / Objective Tree, Pyramid Diagram, Venn Diagram, Mind Map, Concept Map, Tree Diagram, Input–Output Model, Value Chain Diagram, SWOT Analysis, 2×2 Matrix, Timeline, Decision Tree, Comparison Matrix, Resource Flow Diagram, Infographic, Bar Graph Blueprint, Line Graph Blueprint, Pie Chart Blueprint, Scatter Plot, Spider/Radar Diagram, Process Diagram, Hierarchy Diagram, Network Diagram, Funnel Diagram, Circular Flow Diagram]
@@ -190,7 +184,7 @@ MANDATORY 10-MARK STRUCTURE:
    - Strict category/chronological order.
    - Every node has a BOLD TOPIC on the first line.
    - Zero <br> tags.
-   - Attractive color classes applied.
+   - Node IDs start with letters (N1, N2...).
    - Embedded substantive policy mandates.
 3. SECONDARY ANALYTICAL VISUAL:
    - Subject-specific 2x2 Matrix, SWOT, Decision Tree, or Graph Blueprint.
@@ -230,33 +224,27 @@ def extract_mermaid_code(text: str) -> str:
 
 def sanitize_mermaid_code(code: str) -> str:
     """
-    Robust Auto-Sanitizer for Mermaid Syntax:
-    - Completely eradicates <br> and <br/> tags
-    - Converts HTML bold <b>/<strong> to markdown bold **
-    - Ensures nodes use safe Markdown string format ["`**Title**\n• ...`"]
-    - Normalizes unicode superscripts and smart quotes
-    - Injects attractive color palette classes if missing
+    Bulletproof Mermaid Sanitizer:
+    1. Eradicates all <br> tags
+    2. Converts numeric node IDs (1, 2, 3) to valid alphanumeric IDs (N1, N2, N3)
+    3. Guarantees all classDef statements end with semicolons (fixes parse error at line 18)
+    4. Formats nodes as Markdown strings ["`**Title**\n• ...`"]
     """
     if not code:
         return ""
     
-    # 1. Total eradication of any <br> or <br/> tags
+    # 1. Total eradication of <br> tags
     code = re.sub(r'(?:<br\s*/?>|&lt;br\s*/?&gt;)', '\n', code, flags=re.IGNORECASE)
-    
-    # 2. Convert HTML bold tags to markdown ** bold
     code = re.sub(r'</?(?:b|strong)>', '**', code, flags=re.IGNORECASE)
-    
-    # 3. Strip any remaining HTML tags
     code = re.sub(r'<[^>]+>', '', code)
     
-    # 4. Normalize quotes and superscripts
+    # 2. Normalize quotes and superscripts
     code = code.replace("‘", "'").replace("’", "'").replace('“', "'").replace('”', "'")
     superscripts = {"⁰":"0", "¹":"1", "²":"2", "³":"3", "⁴":"4", "⁵":"5", "⁶":"6", "⁷":"7", "⁸":"8", "⁹":"9", "⁻":"-", "⁺":"+"}
     for k, v in superscripts.items():
         code = code.replace(k, v)
     code = code.replace("ha-1", "/ha").replace("kg-1", "/kg")
     
-    # 5. Fix node labels to use Markdown strings ["`...`"]
     lines = [l.strip() for l in code.split("\n") if l.strip()]
     if not lines:
         return ""
@@ -264,27 +252,30 @@ def sanitize_mermaid_code(code: str) -> str:
     first_line = lines[0].lower()
     if not (first_line.startswith("flowchart") or first_line.startswith("graph")):
         lines.insert(0, "flowchart TD")
-        
-    cleaned_lines = []
-    has_class_def = any("classDef" in l for l in lines)
     
-    # Inject color classes if absent
-    if not has_class_def:
-        cleaned_lines.append(lines[0])
-        cleaned_lines.append("    classDef cGreen fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46;")
-        cleaned_lines.append("    classDef cBlue fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e40af;")
-        cleaned_lines.append("    classDef cAmber fill:#fffbeb,stroke:#d97706,stroke-width:2px,color:#92400e;")
-        cleaned_lines.append("    classDef cRed fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#991b1b;")
-        cleaned_lines.append("    classDef cPurple fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#6b21a8;")
-        lines = lines[1:]
-
-    for line in lines:
+    cleaned_lines = []
+    
+    # Filter out LLM's broken classDef lines and inject 5 guaranteed clean ones
+    core_lines = [l for l in lines if not l.startswith("classDef")]
+    
+    # Insert guaranteed clean color definitions with semicolons
+    cleaned_lines.append(core_lines[0])
+    cleaned_lines.append("    classDef cGreen fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46;")
+    cleaned_lines.append("    classDef cBlue fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e40af;")
+    cleaned_lines.append("    classDef cAmber fill:#fffbeb,stroke:#d97706,stroke-width:2px,color:#92400e;")
+    cleaned_lines.append("    classDef cRed fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#991b1b;")
+    cleaned_lines.append("    classDef cPurple fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#6b21a8;")
+    
+    for line in core_lines[1:]:
         stripped = line.strip()
-        if any(stripped.startswith(p) for p in ["flowchart", "graph", "classDef", "subgraph", "end", "style", "class ", "%%"]):
+        if any(stripped.startswith(p) for p in ["flowchart", "graph", "subgraph", "end", "style", "class ", "%%"]):
             cleaned_lines.append(line)
             continue
         
-        # Transform Node(...) or Node[...] into Node["`...`"]
+        # FIX 1: Prefix numeric IDs (e.g. 1[...], 1 --> 2) with 'N' so they are valid Mermaid identifiers
+        line = re.sub(r'(?<=[\s;,(\[{]|^)(\d+[A-Za-z0-9_]*)(?=\s*(?:\[|\(|:::|-->|---|==>|-\.->|--\w+-->|;|\n|$))', r'N\1', line)
+        
+        # FIX 2: Format nodes into clean Markdown strings ["`...`"]
         def format_markdown_node(match):
             node_id = match.group(1)
             raw_text = match.group(2).strip()
@@ -296,7 +287,6 @@ def sanitize_mermaid_code(code: str) -> str:
                 raw_text = raw_text[1:-1].strip()
                 
             raw_text = raw_text.replace('"', "'")
-            # Ensure no literal <br>
             raw_text = re.sub(r'(?:<br\s*/?>|&lt;br\s*/?&gt;)', '\n', raw_text, flags=re.IGNORECASE)
             return f'{node_id}["`{raw_text}`"]'
 
@@ -306,7 +296,6 @@ def sanitize_mermaid_code(code: str) -> str:
         cleaned_lines.append(line)
         
     final_mermaid = "\n".join(cleaned_lines)
-    # Final sweep to ensure zero <br> tags remain
     final_mermaid = re.sub(r'(?:<br\s*/?>|&lt;br\s*/?&gt;)', '\n', final_mermaid, flags=re.IGNORECASE)
     return final_mermaid
 
@@ -327,7 +316,7 @@ def generate_highres_image_url(mermaid_code: str) -> str:
 st.markdown("""
 <div class="hero-banner">
     <h1>🌱 Loksewa Agri Officer: Master Visual Engine</h1>
-    <p>Bold Topics • Attractive Colors • Zero &lt;br&gt; Tags • Contextual Policies • Full-Screen View</p>
+    <p>Zero-Error Mermaid Architecture • Bold Topics • Attractive Colors • No &lt;br&gt; Tags • In-System Vault</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -361,9 +350,9 @@ with tab_generator:
             WEIGHTAGE: 10 Marks
             
             STRICT EXECUTION DIRECTIVES:
-            1. BOLD TOPIC: Make the topic/title of every node bold using **Topic Title**.
-            2. ZERO <br> TAGS: Absolutely never use <br> or <br/> tags. Use real newlines.
-            3. ATTRACTIVE COLORS: Apply the classDef color classes (:::cGreen, :::cBlue, :::cAmber, :::cRed, :::cPurple) to nodes.
+            1. NODE IDS MUST START WITH LETTERS: Name nodes N1, N2, N3 (never raw numbers 1, 2, 3).
+            2. BOLD TOPIC: Make the topic/title of every node bold using **Topic Title**.
+            3. ZERO <br> TAGS: Absolutely never use <br> or <br/> tags. Use real newlines.
             4. CONTEXTUAL POLICY CITATION: Cite ONLY the acts, guidelines, and targets that legally apply to this specific subject matter and state what they mandate.
             5. Provide Primary Mermaid Diagram, Secondary Analytical Visual, 45-second ASCII Exam Blueprint, and Policy Matrix.
             """
@@ -419,7 +408,7 @@ with tab_generator:
         # Diagram Render Block (High-Res Image with Native Fallback)
         if st.session_state.get("current_mermaid"):
             st.markdown('<div class="diagram-frame">', unsafe_allow_html=True)
-            st.markdown('<div class="diagram-title">🎨 Context-Specific Visual Model (Bold Letters & Attractive Colors)</div>', unsafe_allow_html=True)
+            st.markdown('<div class="diagram-title">🎨 Context-Specific Visual Model (Bold Letters & Theme Colors)</div>', unsafe_allow_html=True)
             
             mermaid_code = st.session_state["current_mermaid"]
             img_url = st.session_state.get("current_img_url", "")
@@ -439,7 +428,7 @@ with tab_generator:
             if not rendered_via_image:
                 st.markdown(f"```mermaid\n{mermaid_code}\n```")
                 
-            st.caption("Bold topic headings, attractive color coding, zero HTML tags, with substantive provisions embedded directly in nodes.")
+            st.caption("Zero syntax errors, bold topic headings, attractive color coding, with substantive legal mandates embedded.")
             st.markdown('</div>', unsafe_allow_html=True)
 
         # Full Visual-Dominant Exam Sheet Display
