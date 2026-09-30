@@ -17,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom High-Contrast, Clean Dashboard Styling
+# Custom High-Contrast Dashboard Styling
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
@@ -150,43 +150,57 @@ init_vault_db()
 api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", ""))
 
 # ---------------------------------------------------------
-# Visual-Dominant Master System Prompt
+# Fully Dynamic Context-Adaptive System Prompt
 # ---------------------------------------------------------
-VISUAL_MASTER_SYSTEM_PROMPT = """
+DYNAMIC_CONTEXT_SYSTEM_PROMPT = """
 You are the Chief Examination Answer Architect and Senior Agriculture Specialist for the Nepal Public Service Commission (Gazetted 3rd Class Agriculture Officer).
 
-CORE PHILOSOPHY: THE DIAGRAM IS THE ANSWER!
-- Minimize long textual essays. 85% of all technical information, standards, procedures, and legal provisions MUST be presented directly INSIDE THE FIGURES AND DIAGRAMS.
-- An evaluator should be able to read ONLY the diagrams and matrices and award full 10 marks without reading long prose.
+ABSOLUTE MANDATE: ZERO PRESET OR RECYCLED ANSWERS!
+Every question must be analyzed from first principles. NEVER force-fit unrelated laws, generic four-stage pipelines, or repetitive boilerplate. The answer, technical parameters, and policy citations must be 100% contextual to the exact topic asked.
 
-STRICT MERMAID SYNTAX RULES (ZERO ERRORS, NO HTML TAGS):
-1. ABSOLUTELY NEVER USE HTML TAGS LIKE <br>, <br/>, <b>, </b>, <i>, </i> ANYWHERE!
-   - To make line breaks inside Mermaid nodes, write \\n inside double-quoted strings.
-   - Example of correct node format:
-     A1["Stage 1: Soil Prep\\n- Action: 2-4 t/ha lime\\n- Standard: pH 6.0-6.5\\n- Policy: ADS 2035"]
-2. NEVER use rounded parenthesis node shapes like NodeID(...) because nested parentheses crash the Mermaid parser!
-3. ALWAYS format nodes using safe square brackets and double quotes: NodeID["..."].
-4. NEVER use curly quotes (' ‘ ’ “ ” ') or unicode superscripts (use /ha instead of ha-1).
-5. All node IDs must be simple alphanumeric strings (A1, A2, B1, B2, etc.).
+1. CONTEXTUAL POLICY & REGULATORY MAPPING (CITE ONLY WHAT ACTUALLY APPLIES):
+Dynamically identify and cite ONLY the specific legal, policy, and institutional frameworks that govern the topic:
+- If Horticultural Production / Tunnels / Pruning: Cite Fruit Development Decade Guidelines, Nursery Standards, PMAMP Protected Horticulture Subsidy Norms, Plastic Tunnel Support Schemes. (DO NOT cite Seeds Act or Quarantine unless relevant).
+- If Soil Health / Fertilizer / IPNM: Cite Subsidized Chemical Fertilizer Management Directives, Agricultural Lime Subsidy Guidelines, Soil Health Card Directives, ADS Soil Target. (DO NOT cite Food Hygiene Act).
+- If Plant Protection / Disease / Pesticides: Cite Plant Protection Act 2064, Pesticides Management Act 2076 (Sec. 8 banned list), PQPMC biocontrol protocols, Maximum Residue Limits (MRL).
+- If Seed Quality / Varieties: Cite Seeds Act 2045 (Amended 2079, Sec. 16 Truthful Labeling), Seeds Rules 2069, National Seed Vision (2013-2025), SQCC Certification Standards.
+- If Agricultural Economics / Farm Management: Cite Law of Diminishing Returns principles, Farm Budgeting standards, Minimum Support Price (MSP) directives, Agriculture Insurance Premium Subsidy Procedures.
+- If Extension / ICT / Governance: Cite Local Government Operation Act 2074 (Palika agriculture jurisdiction), Digital Nepal Framework (Agri-component), Intergovernmental Coordination Act 2077.
+- If Post-Harvest / Food Safety / Value Chain: Cite Food Hygiene and Quality Act 2081 (Sec. 14 Traceability), SPS regulations, 16th Periodic Plan cold-chain corridors.
+
+ALWAYS STATE WHAT THE POLICY ACTUALLY MANDATES:
+Never just name the law. Explicitly write its specific section, quantitative ceiling, subsidy rate, or technical requirement in the context of the question.
+
+2. DYNAMIC VISUAL ARCHITECTURE (THE DIAGRAM IS THE ANSWER):
+Choose the visual type from the 30-archetype catalog that represents the intrinsic logic of the topic:
+- Production/Agronomy: Chronological phenological flow (Land prep -> Seed/Nursery -> Husbandry -> Harvest -> Storage).
+- Plant Protection: IPM hierarchy (Host resistance -> Cultural -> Mechanical -> Biological -> Biorational -> Chemical).
+- Economics: Production Curves (TP, AP, MP stages), 2x2 Resource Optimization Matrix, Value Chain margin breakdown.
+- Pathology: Disease Triangle, Inoculum cycle, Surveillance-Forecasting loop.
+- Seed Tech: Generation Multiplication Chain (Breeder -> Foundation -> Certified 1 & 2 -> Improved).
+- Governance: Multi-Tier Jurisdiction Matrix (Federal policy -> Provincial research/labs -> Local extension).
+
+STRICT MERMAID SYNTAX RULES (ZERO PARSER ERRORS):
+1. ABSOLUTELY NEVER USE HTML TAGS (<br>, <b>, <i>, <span>). Use \\n for line breaks inside double-quoted strings.
+2. ALWAYS format nodes strictly as: NodeID["Title\\n- Technical Standard\\n- Operational Agent\\n- Contextual Policy Provision"].
+3. NEVER use rounded parenthesis node shapes like NodeID(...) because nested parentheses crash the parser.
+4. Color-code nodes contextually (Green for sustainable/inputs, Blue for tech/logistics, Amber for thresholds/monitoring, Red for pests/losses, Purple for governance).
 
 CATALOG OF 30 DYNAMIC VISUAL ARCHETYPES:
 [Flowchart, Cycle Diagram, Cause–Effect Diagram, Fishbone (Ishikawa), Problem Tree, Solution Tree / Objective Tree, Pyramid Diagram, Venn Diagram, Mind Map, Concept Map, Tree Diagram, Input–Output Model, Value Chain Diagram, SWOT Analysis, 2×2 Matrix, Timeline, Decision Tree, Comparison Matrix, Resource Flow Diagram, Infographic, Bar Graph Blueprint, Line Graph Blueprint, Pie Chart Blueprint, Scatter Plot, Spider/Radar Diagram, Process Diagram, Hierarchy Diagram, Network Diagram, Funnel Diagram, Circular Flow Diagram]
 
-MANDATORY 10-MARK ANSWER STRUCTURE:
-1. EXECUTIVE SNAPSHOT (Short Box):
-   - Definition in 2 sentences.
-   - Core Baseline Statistics: 7th Agricultural Census 2078 (4.13M holdings, 2.21M ha operated area, 0.55 ha avg holding) or relevant MoALD data.
-2. PRIMARY COMPREHENSIVE MERMAID VISUAL:
-   - Choose the best model from the 30-archetype catalog (Value Chain, Fishbone, Problem-Solution Tree, Sequential Process, or Safety Hierarchy).
-   - STRICT CATEGORICAL / CHRONOLOGICAL ORDERING.
-   - Multi-line descriptive text separated by \\n (no <br> tags).
-   - Embedded Nepal Act / Policy clause in brackets in each node.
-   - Vibrant color coding applied via style rules (Green, Blue, Amber, Red, Purple).
-3. SECONDARY ANALYTICAL VISUAL (2x2 Matrix, SWOT, Pyramid, Radar, or Graph Blueprint).
-4. 45-SECOND EXAM-HALL HAND-DRAWN BLUEPRINT:
-   - Clean ASCII box sketch that candidates can draw on paper in 45 seconds.
-5. HIGH-DENSITY POLICY & INDICATOR LEDGER:
-   - Structured table connecting figure nodes to technical standards, KPIs, and responsible Nepal Acts.
+MANDATORY 10-MARK STRUCTURE:
+1. EXECUTIVE SNAPSHOT:
+   - Precise 2-line technical definition.
+   - Commodity/Topic-specific baseline data from Nepal Agricultural Census 2078 or latest MoALD reports.
+2. PRIMARY CONTEXTUAL MERMAID DIAGRAM:
+   - High-density, multi-line descriptive cards (separated by \\n) with embedded contextual policy mandates.
+3. SECONDARY ANALYTICAL VISUAL:
+   - Subject-specific 2x2 Matrix, SWOT, Decision Tree, or Graph Blueprint (labeled X/Y axes and threshold curves).
+4. 45-SECOND EXAM HAND-DRAWN BLUEPRINT:
+   - Clean ASCII sketch matching the exact topic for immediate answer-sheet reproduction.
+5. CONTEXTUAL POLICY & TECHNICAL MATRIX:
+   - Structured table connecting figure nodes to exact technical parameters and what the relevant law specifically mandates.
 """
 
 # ---------------------------------------------------------
@@ -218,13 +232,7 @@ def extract_mermaid_code(text: str) -> str:
     return match.group(1).strip() if match else ""
 
 def sanitize_mermaid_code(code: str) -> str:
-    """
-    Cleans and repairs Mermaid syntax errors automatically:
-    - Strips all <br>, <br/>, <br /> and converts them to \\n
-    - Strips all HTML tags (<b>, <i>, <span>)
-    - Normalizes smart quotes and unicode superscripts
-    - Fixes unquoted parentheses causing parser crashes
-    """
+    """Sanitizes Mermaid code to prevent parser crashes."""
     if not code:
         return ""
     
@@ -277,13 +285,11 @@ def sanitize_mermaid_code(code: str) -> str:
     return "\n".join(cleaned_lines)
 
 def sanitize_markdown_text(text: str) -> str:
-    """Removes any stray <br> tags from the answer text."""
     if not text:
         return ""
     return re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
 
 def generate_highres_image_url(mermaid_code: str) -> str:
-    """Generates direct URL for full-screen view at scale=3 on a pure white canvas."""
     encoded = base64.b64encode(mermaid_code.encode("utf-8")).decode("ascii")
     return f"https://mermaid.ink/img/{encoded}?bgColor=white&scale=3"
 
@@ -293,26 +299,26 @@ def generate_highres_image_url(mermaid_code: str) -> str:
 st.markdown("""
 <div class="hero-banner">
     <h1>🌱 Loksewa Agri Officer: Master Visual Engine</h1>
-    <p>Clean Mermaid Diagrams (No &lt;br&gt; Tags) • Categorical & Chronological • Full-Screen View • Internal Vault</p>
+    <p>Context-Adaptive Visuals • Domain-Specific Nepal Policies • Clean Mermaid (No &lt;br&gt;) • In-System Vault</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # Working Tabs
 # ---------------------------------------------------------
-tab_generator, tab_vault = st.tabs(["📊 Visual Answer Generator", "📚 In-System Revision Vault"])
+tab_generator, tab_vault = st.tabs(["📊 Dynamic Visual Generator", "📚 In-System Revision Vault"])
 
 # =========================================================
-# TAB 1: VISUAL ANSWER GENERATOR
+# TAB 1: DYNAMIC VISUAL GENERATOR
 # =========================================================
 with tab_generator:
     user_query = st.text_area(
         "Enter Loksewa Question / Syllabus Topic (10 Marks):",
-        placeholder="Type any syllabus topic (e.g., Value Chain in Agriculture, Law of Diminishing Marginal Returns, Post-Harvest Loss Management, Citrus Decline, Tomato Tunnel Cultivation, Plant Quarantine)...",
+        placeholder="Type any specific syllabus question (e.g., Training and Pruning Systems in Deciduous Fruit Trees; Biological Nitrogen Fixation Mechanism and Biofertilizer Policies; Law of Diminishing Marginal Returns in Input Allocation)...",
         height=110
     )
 
-    if st.button("Generate Visual-First Answer", type="primary", use_container_width=True):
+    if st.button("Generate Context-Specific Visual Answer", type="primary", use_container_width=True):
         if not api_key:
             st.error("⚠️ GROQ_API_KEY is not set. Please add it to your Streamlit Cloud Settings -> Secrets.")
         elif not user_query.strip():
@@ -322,24 +328,23 @@ with tab_generator:
             active_model = get_working_groq_model(client)
             
             full_prompt = f"""
-            Provide a complete, top-tier Loksewa Gazetted 3rd Class Agriculture Officer answer for:
+            Analyze the following question and synthesize an entirely context-specific 10-mark Loksewa answer:
             QUESTION: {user_query}
             WEIGHTAGE: 10 Marks
             
-            CRITICAL RULES:
-            - THE ANSWER MUST BE ENTIRELY READABLE AND DERIVABLE DIRECTLY FROM THE FIGURES!
-            - ABSOLUTELY NEVER USE <br> OR <br/> TAGS! Use \\n for line breaks inside Mermaid strings.
-            - Ensure all Mermaid nodes are strictly NodeID["Title\\n- Bullet"].
-            - Provide Primary Categorical/Chronological Diagram with vibrant color styling.
-            - Provide Secondary Analytical Visual (2x2 Matrix, SWOT, or Graph Blueprint).
-            - Provide 45-second ASCII Exam Blueprint and Policy Ledger.
+            STRICT EXECUTION DIRECTIVES:
+            1. NO PRESET OR RECYCLED BOILERPLATE: Identify the exact discipline and tailor all standards, indicators, and baseline data specifically to this topic.
+            2. CONTEXTUAL POLICY CITATION: Cite ONLY the acts, guidelines, and targets that legally apply to this specific subject matter. Detail WHAT the policy prescribes.
+            3. ZERO <br> TAGS: Use \\n for line breaks inside Mermaid node strings.
+            4. DYNAMIC DIAGRAM LOGIC: Pick the model from your 30-archetype taxonomy that reflects the true technical mechanics of this topic.
+            5. Provide Primary Mermaid Diagram, Secondary Analytical Visual, 45-second ASCII Exam Blueprint, and Policy Matrix.
             """
             
-            with st.spinner(f"Designing clean visual architecture using engine ({active_model})..."):
+            with st.spinner(f"Analyzing subject context and synthesizing tailored visual architecture with ({active_model})..."):
                 try:
                     completion = client.chat.completions.create(
                         messages=[
-                            {"role": "system", "content": VISUAL_MASTER_SYSTEM_PROMPT},
+                            {"role": "system", "content": DYNAMIC_CONTEXT_SYSTEM_PROMPT},
                             {"role": "user", "content": full_prompt}
                         ],
                         model=active_model,
@@ -386,7 +391,7 @@ with tab_generator:
         # Diagram Render Block
         if st.session_state["current_mermaid"]:
             st.markdown('<div class="diagram-frame">', unsafe_allow_html=True)
-            st.markdown('<div class="diagram-title">🎨 Primary Visual Architecture (Complete Answer In-Figure)</div>', unsafe_allow_html=True)
+            st.markdown('<div class="diagram-title">🎨 Context-Specific Visual Model (Technical Mechanics & Relevant Laws)</div>', unsafe_allow_html=True)
             
             # Fetch high-res PNG for rendering without browser font glitches
             try:
@@ -398,11 +403,11 @@ with tab_generator:
             except Exception:
                 st.markdown(f"```mermaid\n{st.session_state['current_mermaid']}\n```")
                 
-            st.caption("Clean typography, no HTML tags, color-coded by stage with embedded standards and acts.")
+            st.caption("Dynamically constructed based on the technical mechanics of the question with context-specific legal mandates.")
             st.markdown('</div>', unsafe_allow_html=True)
 
         # Full Visual-Dominant Exam Sheet Display
-        st.markdown("### 📋 Complete 10-Mark Visual Answer Sheet")
+        st.markdown("### 📋 Complete 10-Mark Contextual Answer Sheet")
         st.markdown(st.session_state["current_answer"])
 
 # =========================================================
