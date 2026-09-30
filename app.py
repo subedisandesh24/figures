@@ -6,7 +6,6 @@ import requests
 import os
 import sqlite3
 from datetime import datetime
-import streamlit.components.v1 as components
 
 # ---------------------------------------------------------
 # Page Setup: Clean & High-Contrast Visual Interface
@@ -260,19 +259,14 @@ def sanitize_mermaid_code(code: str) -> str:
         def fix_node_label(match):
             node_id = match.group(1)
             raw_text = match.group(2).strip()
-            # Strip outer quotes if already present
             if (raw_text.startswith('"') and raw_text.endswith('"')) or (raw_text.startswith("'") and raw_text.endswith("'")):
                 raw_text = raw_text[1:-1].strip()
-            # Clean internal quotes and backslashes
             raw_text = raw_text.replace('"', "'").replace('\\', ' ')
             raw_text = re.sub(r'\s+', ' ', raw_text)
             return f'{node_id}["{raw_text}"]'
 
-        # Convert Node(...) to safe Node["..."]
         line = re.sub(r'\b([A-Za-z0-9_]+)\((.*?)\)', fix_node_label, line)
-        # Ensure Node[...] is wrapped in double quotes
         line = re.sub(r'\b([A-Za-z0-9_]+)\[(?!")(.*?)\]', fix_node_label, line)
-        
         cleaned_lines.append(line)
         
     return "\n".join(cleaned_lines)
@@ -282,48 +276,6 @@ def sanitize_markdown_text(text: str) -> str:
     if not text:
         return ""
     return re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
-
-def render_interactive_mermaid(mermaid_code: str, height: int = 420):
-    """
-    Renders Mermaid natively using official mermaid.js in a sandboxed HTML component.
-    Enforces htmlLabels: false to guarantee clean text without <br> tags.
-    """
-    html_code = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <script type="module">
-            import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-            mermaid.initialize({{
-                startOnLoad: true,
-                securityLevel: 'loose',
-                theme: 'forest',
-                flowchart: {{ htmlLabels: false, curve: 'basis' }}
-            }});
-        </script>
-        <style>
-            body {{
-                margin: 0;
-                padding: 12px;
-                background-color: #ffffff;
-                display: flex;
-                justify-content: center;
-                font-family: sans-serif;
-            }}
-            .mermaid {{
-                width: 100%;
-                text-align: center;
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="mermaid">
-        {mermaid_code}
-        </div>
-    </body>
-    </html>
-    """
-    components.html(html_code, height=height, scrolling=True)
 
 def generate_highres_image_url(mermaid_code: str) -> str:
     """Generates direct URL for full-screen view at scale=3 on a pure white canvas."""
@@ -336,7 +288,7 @@ def generate_highres_image_url(mermaid_code: str) -> str:
 st.markdown("""
 <div class="hero-banner">
     <h1>🌱 Loksewa Agri Officer: Master Visual Engine</h1>
-    <p>Zero-Error Mermaid Architecture • No &lt;br&gt; Tags • Contextual Policies • Full-Screen View • Internal Vault</p>
+    <p>Direct Visual Rendering • No &lt;br&gt; Tags • Contextual Policies • Full-Screen View • Internal Vault</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -409,7 +361,7 @@ with tab_generator:
         # Action Bar: Full Screen & Save to System
         col_act1, col_act2 = st.columns([1, 1])
         with col_act1:
-            if st.session_state["current_img_url"]:
+            if st.session_state.get("current_img_url"):
                 st.markdown(
                     f'<a href="{st.session_state["current_img_url"]}" target="_blank" class="open-window-btn">'
                     f'🔍 Open Picture in Full Screen (New Window) ↗</a>',
@@ -425,15 +377,30 @@ with tab_generator:
                 )
                 st.success("✅ Saved to internal vault! You can study it anytime in the 'In-System Revision Vault' tab.")
 
-        # Diagram Render Block
-        if st.session_state["current_mermaid"]:
+        # Diagram Render Block (Fail-Safe Dual-Engine)
+        if st.session_state.get("current_mermaid"):
             st.markdown('<div class="diagram-frame">', unsafe_allow_html=True)
-            st.markdown('<div class="diagram-title">🎨 Context-Specific Visual Model (Error-Free Native Rendering)</div>', unsafe_allow_html=True)
+            st.markdown('<div class="diagram-title">🎨 Context-Specific Visual Model (Technical Mechanics & Relevant Laws)</div>', unsafe_allow_html=True)
             
-            # Interactive Native Component with zero <br> tags
-            render_interactive_mermaid(st.session_state["current_mermaid"])
+            mermaid_code = st.session_state["current_mermaid"]
+            img_url = st.session_state.get("current_img_url", "")
             
-            st.caption("Clean vector rendering, no HTML tags, with substantive provisions and targets embedded directly in nodes.")
+            # 1. Primary Render: Direct Server-Fetched High-Res Image (No Iframe/CDN Glitches)
+            rendered_via_image = False
+            if img_url:
+                try:
+                    res = requests.get(img_url, timeout=6)
+                    if res.status_code == 200 and len(res.content) > 800:
+                        st.image(res.content, use_container_width=True, caption="Categorical & Chronological Architecture")
+                        rendered_via_image = True
+                except Exception:
+                    rendered_via_image = False
+            
+            # 2. Secondary Fail-Safe: Streamlit Native Markdown Mermaid
+            if not rendered_via_image:
+                st.markdown(f"```mermaid\n{mermaid_code}\n```")
+                
+            st.caption("Clean typography, no HTML tags, with substantive provisions and targets embedded directly in nodes.")
             st.markdown('</div>', unsafe_allow_html=True)
 
         # Full Visual-Dominant Exam Sheet Display
@@ -471,7 +438,17 @@ with tab_vault:
 
                 if item_mmd:
                     st.markdown('<div class="diagram-frame">', unsafe_allow_html=True)
-                    render_interactive_mermaid(item_mmd)
+                    rendered_vault_img = False
+                    if item_url:
+                        try:
+                            v_res = requests.get(item_url, timeout=5)
+                            if v_res.status_code == 200 and len(v_res.content) > 800:
+                                st.image(v_res.content, use_container_width=True)
+                                rendered_vault_img = True
+                        except Exception:
+                            rendered_vault_img = False
+                    if not rendered_vault_img:
+                        st.markdown(f"```mermaid\n{item_mmd}\n```")
                     st.markdown('</div>', unsafe_allow_html=True)
 
                 st.markdown(item_ans)
