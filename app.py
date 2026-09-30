@@ -6,7 +6,7 @@ import requests
 import os
 
 # ---------------------------------------------------------
-# Page Configuration (Clean, full-width, no sidebar clutter)
+# Page Configuration (Clean layout, no sidebar clutter)
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="Loksewa Agri Officer Engine",
@@ -34,22 +34,13 @@ st.markdown("""
         margin-bottom: 10px;
         display: inline-block;
     }
-    .policy-tag {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# API Key & Model Configuration (Automatic - No Sidebar)
+# API Key Configuration (Automatic via Secrets)
 # ---------------------------------------------------------
 api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", ""))
-ACTIVE_MODEL = "llama-3.3-70b-versatile"
 
 # ---------------------------------------------------------
 # Master System Prompt: Descriptive Diagrams & Policies
@@ -98,10 +89,34 @@ POLICY REPOSITORY:
 """
 
 # ---------------------------------------------------------
-# Utility Functions
+# Dynamic Model Discovery (Eliminates 404 Model Errors)
 # ---------------------------------------------------------
+def get_working_groq_model(client: Groq) -> str:
+    """
+    Checks your account's active models and selects the highest-performance model available.
+    """
+    priority_order = [
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.8-27b",
+        "openai/gpt-oss-20b",
+        "llama-3.1-8b-instant"
+    ]
+    try:
+        active_models = client.models.list()
+        active_ids = {m.id for m in active_models.data}
+        for candidate in priority_order:
+            if candidate in active_ids:
+                return candidate
+        # Fallback to any non-whisper model if priority ones are unavailable
+        for m in active_ids:
+            if "whisper" not in m and "guard" not in m:
+                return m
+    except Exception:
+        pass
+    return "openai/gpt-oss-120b"
+
 def extract_mermaid_code(text: str) -> str:
-    """Extracts the first valid mermaid block from response text."""
+    """Safely extracts the first mermaid code block."""
     pattern = r"```(?:mermaid|Mermaid)\s*([\s\S]*?)\s*```"
     match = re.search(pattern, text)
     if match:
@@ -109,10 +124,7 @@ def extract_mermaid_code(text: str) -> str:
     return ""
 
 def fetch_highres_diagram_png(mermaid_code: str):
-    """
-    Downloads high-resolution PNG from mermaid.ink.
-    Uses scale=2 and pure white background for clear readability.
-    """
+    """Downloads high-res PNG from mermaid.ink (scale 2, white background)."""
     try:
         encoded = base64.b64encode(mermaid_code.encode("utf-8")).decode("ascii")
         url = f"https://mermaid.ink/img/{encoded}?bgColor=white&scale=2"
@@ -124,27 +136,16 @@ def fetch_highres_diagram_png(mermaid_code: str):
         return None
 
 # ---------------------------------------------------------
-# User Interface (Direct, Full-Screen)
+# User Interface (No Sample Questions, Clean Input)
 # ---------------------------------------------------------
-st.title("🌾 Loksewa Agriculture Officer Examination Engine")
-st.markdown("Generates **10-Mark Loksewa Answers** featuring **descriptive, policy-embedded visual cards**, 45-second exam blueprints, and **high-res PNG downloads**.")
+st.title("🌾 Loksewa Agri Officer Examination Engine")
+st.caption("10-Mark Answer Architect | Descriptive Policy-Embedded Visuals | Exam Hall Blueprints")
 
-sample_topics = [
-    "Select or type an exam question...",
-    "Analyze the structural bottlenecks in the vegetable value chain leading to high consumer prices and low farm-gate prices. Formulate an integrated post-harvest & marketing strategy linking the Food Hygiene and Quality Act 2081. (10 Marks)",
-    "Explain the epidemiology and integrated management of Citrus Greening (Huanglongbing) disease in Nepal. Highlight institutional quarantine mechanisms. (10 Marks)",
-    "Discuss the declining soil fertility in mid-hills of Nepal. Design an Integrated Plant Nutrient Management (IPNM) framework referencing recent government subsidy and soil policies. (10 Marks)",
-    "Examine the challenges in achieving seed self-sufficiency in Nepal. Detail the varietal release, certification, and seed replacement procedures under current acts. (10 Marks)"
-]
-
-selected_sample = st.selectbox("Quick-Load Sample Question:", sample_topics, index=0)
-default_query = "" if selected_sample == sample_topics[0] else selected_sample
-
+# Blank input box for your own question
 user_query = st.text_area(
     "Enter Question / Syllabus Topic (10 Marks):",
-    value=default_query,
-    placeholder="Type any topic from Paper I or Paper II (Extension, Economics, Soil, Agronomy, Horticulture, Plant Protection)...",
-    height=100
+    placeholder="Type your own Loksewa question or syllabus topic here...",
+    height=120
 )
 
 col_run, _ = st.columns([1, 4])
@@ -152,15 +153,18 @@ with col_run:
     submit_btn = st.button("Generate Answer & Visuals", type="primary", use_container_width=True)
 
 # ---------------------------------------------------------
-# Execution & Rendering Pipeline
+# Processing Pipeline
 # ---------------------------------------------------------
 if submit_btn:
     if not api_key:
         st.error("⚠️ GROQ_API_KEY is not set. Please add it to your Streamlit Community Cloud Settings -> Secrets.")
     elif not user_query.strip():
-        st.warning("⚠️ Please enter an exam question or topic.")
+        st.warning("⚠️ Please type your question first.")
     else:
         client = Groq(api_key=api_key)
+        
+        # Dynamically find the active high-performance model
+        selected_model = get_working_groq_model(client)
         
         full_prompt = f"""
         Provide a complete, top-tier Loksewa Gazetted 3rd Class Agriculture Officer answer for:
@@ -174,14 +178,14 @@ if submit_btn:
         - Provide the 45-second ASCII exam blueprint, technical-policy matrix, and concise action points.
         """
         
-        with st.spinner("Analyzing question, generating descriptive diagram cards, and linking verified policies..."):
+        with st.spinner(f"Using high-performance engine ({selected_model}) to generate descriptive visual answer..."):
             try:
                 completion = client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": full_prompt}
                     ],
-                    model=ACTIVE_MODEL,
+                    model=selected_model,
                     temperature=0.2,
                     max_tokens=4096
                 )
@@ -189,9 +193,7 @@ if submit_btn:
                 answer_content = completion.choices[0].message.content
                 mermaid_code = extract_mermaid_code(answer_content)
                 
-                # -----------------------------------------------------
-                # Section A: Descriptive Visual & PNG Download Center
-                # -----------------------------------------------------
+                # --- Diagram & Download Section ---
                 if mermaid_code:
                     st.markdown('<div class="figure-frame"><span class="figure-label">🖼️ Descriptive Visual Model (Policy & Standard Embedded)</span>', unsafe_allow_html=True)
                     
@@ -232,15 +234,11 @@ if submit_btn:
                         )
                     st.markdown('</div>', unsafe_allow_html=True)
 
-                # -----------------------------------------------------
-                # Section B: Full Loksewa Answer Sheet
-                # -----------------------------------------------------
+                # --- Full Loksewa Answer Display ---
                 st.markdown("### 📝 Complete 10-Mark Loksewa Examination Sheet")
                 st.markdown(answer_content)
                 
-                # -----------------------------------------------------
-                # Section C: Download Full Answer Sheet
-                # -----------------------------------------------------
+                # --- Full Answer Download ---
                 st.markdown("---")
                 st.download_button(
                     label="📥 Download Full Exam Answer (Markdown)",
