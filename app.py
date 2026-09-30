@@ -8,22 +8,22 @@ import sqlite3
 from datetime import datetime
 
 # ---------------------------------------------------------
-# Page Setup & Professional Exam Visual Theme
+# Page Setup: Eye-Catchy, Clean Visual Dashboard
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="Loksewa Agri Officer: Master Visual Engine",
-    page_icon="🌾",
+    page_title="Loksewa Agri Visual Master Engine",
+    page_icon="🌱",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Custom Styling for Visuals, Cards, and Badges
+# Custom High-Contrast, Eye-Catchy Dashboard Styling
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
     .block-container { 
@@ -31,43 +31,53 @@ st.markdown("""
         padding-bottom: 3.5rem; 
     }
     
-    /* Top Banner */
+    /* Top Hero Infographic Banner */
     .hero-banner {
-        background: linear-gradient(135deg, #14532d 0%, #15803d 50%, #16a34a 100%);
-        border-radius: 12px;
-        padding: 22px 28px;
+        background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%);
+        border-radius: 14px;
+        padding: 24px 30px;
         color: #ffffff;
         margin-bottom: 24px;
-        box-shadow: 0 4px 14px rgba(20, 83, 45, 0.25);
+        box-shadow: 0 8px 20px rgba(6, 78, 59, 0.25);
     }
     .hero-banner h1 {
         color: #ffffff;
         font-weight: 800;
-        font-size: 2.1rem;
+        font-size: 2.2rem;
         margin-bottom: 6px;
     }
     .hero-banner p {
-        color: #dcfce7;
+        color: #a7f3d0;
         font-size: 1.05rem;
         margin: 0;
+        font-weight: 500;
     }
     
-    /* Diagram Container */
-    .diagram-card {
+    /* Visual Frame Card */
+    .diagram-frame {
         background: #ffffff;
         border: 2px solid #cbd5e1;
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 22px;
-        margin: 20px 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin: 22px 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+    .diagram-title {
+        font-weight: 800;
+        font-size: 1.15rem;
+        color: #065f46;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     
-    /* Full-Screen External Link Button */
+    /* Full-Screen Button Link */
     .open-window-btn {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
         color: #ffffff !important;
         padding: 11px 22px;
         border-radius: 8px;
@@ -75,26 +85,39 @@ st.markdown("""
         font-weight: 700;
         font-size: 0.95rem;
         transition: all 0.2s ease-in-out;
-        box-shadow: 0 2px 8px rgba(21, 128, 61, 0.35);
+        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35);
     }
     .open-window-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(21, 128, 61, 0.45);
+        box-shadow: 0 6px 18px rgba(5, 150, 105, 0.45);
         color: #ffffff !important;
+    }
+
+    /* Quick Exam Blueprint Box */
+    .exam-blueprint {
+        background-color: #f8fafc;
+        border: 1.5px dashed #64748b;
+        border-radius: 8px;
+        padding: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        color: #0f172a;
+        overflow-x: auto;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# Internal SQLite Vault (Saves Files in System, Not on PC)
+# Internal SQLite Vault (Saves in System, Not on PC)
 # ---------------------------------------------------------
-DB_FILE = "loksewa_internal_vault.db"
+DB_FILE = "loksewa_visual_vault.db"
 
 def init_vault_db():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("""
-        CREATE TABLE IF NOT EXISTS vault (
+        CREATE TABLE IF NOT EXISTS visual_vault (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp TEXT,
             question TEXT,
@@ -111,7 +134,7 @@ def save_to_vault(question, answer, mermaid_code, image_url):
     c = conn.cursor()
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     c.execute(
-        "INSERT INTO vault (timestamp, question, answer, mermaid_code, image_url) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO visual_vault (timestamp, question, answer, mermaid_code, image_url) VALUES (?, ?, ?, ?, ?)",
         (now, question, answer, mermaid_code, image_url)
     )
     conn.commit()
@@ -120,7 +143,7 @@ def save_to_vault(question, answer, mermaid_code, image_url):
 def get_all_vault_items():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT id, timestamp, question, answer, mermaid_code, image_url FROM vault ORDER BY id DESC")
+    c.execute("SELECT id, timestamp, question, answer, mermaid_code, image_url FROM visual_vault ORDER BY id DESC")
     rows = c.fetchall()
     conn.close()
     return rows
@@ -128,7 +151,7 @@ def get_all_vault_items():
 def delete_vault_item(item_id):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("DELETE FROM vault WHERE id = ?", (item_id,))
+    c.execute("DELETE FROM visual_vault WHERE id = ?", (item_id,))
     conn.commit()
     conn.close()
 
@@ -139,55 +162,64 @@ init_vault_db()
 # ---------------------------------------------------------
 api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", ""))
 
-SYSTEM_PROMPT = """
-You are a senior Nepalese Agriculture Officer, Loksewa answer evaluator, policy specialist, and technical examination answer architect.
-Your mission is to produce a HIGH-SCORING, 10-MARK answer for the Nepal Public Service Commission (Gazetted 3rd Class Agriculture Officer) examination across all disciplines.
+# ---------------------------------------------------------
+# Visual-Dominant Master System Prompt
+# ---------------------------------------------------------
+VISUAL_MASTER_SYSTEM_PROMPT = """
+You are the Chief Examination Answer Architect and Senior Agriculture Specialist for the Nepal Public Service Commission (Gazetted 3rd Class Agriculture Officer).
 
-CRITICAL MANDATE 1: STRICT SYNTAX RULES FOR MERMAID (PREVENT PARSER CRASHES):
-- NEVER use rounded parenthesis node definitions like NodeID(...) because nested parentheses like '(apple rootstock)' break the parser.
-- ALWAYS use square brackets with double quotes: NodeID["Descriptive text here"].
-- NEVER use smart/curly quotes (‘, ’, “, ”) or unicode superscripts (⁻¹, ², ³). Write 'kg/ha' or 'm2'.
-- If citing something in quotes inside a node label, use single quotes (') inside the double-quoted string.
+CORE PHILOSOPHY: THE DIAGRAM IS THE ANSWER!
+- Minimize long textual essays. 85% of all technical information, standards, procedures, and legal provisions MUST be presented directly INSIDE THE FIGURES AND DIAGRAMS.
+- An evaluator should be able to read ONLY the diagrams and matrices and award full 10 marks without reading long prose.
+- Make every visual eye-catching, structured, and color-coded.
 
-CRITICAL MANDATE 2: STRICT CATEGORICAL & CHRONOLOGICAL DIAGRAM ORDERING:
-1. PEST / DISEASE / WEED QUESTIONS:
-   Order strictly by IPM Safety & Toxicity Hierarchy (Least toxic/preventative -> Most toxic/last resort):
-   Stage 1: Host Plant Resistance -> Stage 2: Cultural / Agronomic -> Stage 3: Physical & Mechanical -> Stage 4: Biological / Microbials -> Stage 5: Biorationals -> Stage 6: Chemical (Last Resort, Green-label only, ETL-based).
-2. CROP / HORTICULTURE / AGRONOMY QUESTIONS:
-   Order strictly by Phenological Chronology:
-   Stage 1: Site/Soil Preparation -> Stage 2: Sowing/Nursery -> Stage 3: Vegetative/IPNM -> Stage 4: Reproductive/Canopy Protection -> Stage 5: Harvest/Maturity -> Stage 6: Post-Harvest Cold Chain.
-3. VALUE CHAIN QUESTIONS:
-   Input Supply -> Production -> Aggregation -> Processing -> Storage -> Reefer Logistics -> Mandi -> Retail/Consumer.
-4. INSTITUTIONAL QUESTIONS:
-   Federal -> Provincial -> Local (Palika) -> Cooperatives/Farmers.
+CATALOG OF 30 DYNAMIC VISUAL ARCHETYPES:
+[Flowchart, Cycle Diagram, Cause–Effect Diagram, Fishbone (Ishikawa), Problem Tree, Solution Tree / Objective Tree, Pyramid Diagram, Venn Diagram, Mind Map, Concept Map, Tree Diagram, Input–Output Model, Value Chain Diagram, SWOT Analysis, 2×2 Matrix, Timeline, Decision Tree, Comparison Matrix, Resource Flow Diagram, Infographic, Bar Graph Blueprint, Line Graph Blueprint, Pie Chart Blueprint, Scatter Plot, Spider/Radar Diagram, Process Diagram, Hierarchy Diagram, Network Diagram, Funnel Diagram, Circular Flow Diagram]
 
-CRITICAL MANDATE 3: EMBED POLICIES & STANDARDS INSIDE NODES:
-Inside every subgraph or node, cite relevant Nepal legal frameworks:
-- Constitution of Nepal (Art 36: Food Sovereignty; Art 51)
-- Food Hygiene and Quality Act, 2081 (खाद्य स्वच्छता तथा गुणस्तर ऐन, २०८१)
-- Seeds Act 2045 (Amended 2079) & Seeds Rules 2069
-- Pesticides Management Act 2076 & Plant Protection Act 2064
-- Agriculture Development Strategy (ADS 2015-2035) & 16th Periodic Plan (2081/82 - 2085/86)
-- National Agricultural Census 2078 Data (4.13M holdings, 2.21M ha, 0.55 ha avg holding size)
+MANDATORY ANSWER STRUCTURE (10 MARKS):
+1. EXECUTIVE SNAPSHOT (Short Box):
+   - Definition in 2 sentences.
+   - Core Baseline Statistics: 7th Agricultural Census 2078 (4.13M holdings, 2.21M ha operated area, 0.55 ha avg holding) or relevant MoALD data.
 
-CRITICAL MANDATE 4: MULTI-LINE DESCRIPTIVE CARDS:
-Every node must contain:
-- Operational Title (Bold)
-- Exact Technical Parameters (temperatures, dosages, moisture levels)
-- Implementing Agency & Measurable Impact
-- Responsible Nepal Policy / Act
+2. PRIMARY COMPREHENSIVE MERMAID VISUAL (MANDATORY & VALID):
+   - Choose the most fitting model from the 30-archetype catalog (e.g., Value Chain, Fishbone, Problem-Solution Tree, Sequential Process, or Safety Hierarchy).
+   - STRICT CHRONOLOGICAL OR CATEGORICAL ORDERING:
+     * Agronomy/Horticulture: Land Prep -> Sowing/Nursery -> Vegetative/IPNM -> Canopy/AESA -> Harvest -> Cold Chain.
+     * Plant Protection: Host Resistance -> Cultural -> Mechanical -> Biological -> Biorational -> Chemical (Last Resort).
+     * Value Chain: Input -> Production -> Aggregation -> Processing -> Cold Storage -> Logistics -> Wholesale -> Retail.
+     * Governance: Federal -> Provincial -> Local (Palika) -> Cooperatives/Farmers.
+   - MULTI-LINE DESCRIPTIVE CARDS: Every node must contain:
+     * Operational Title (Bold)
+     * Technical Standards (exact dosages, temperatures, moisture %, thresholds)
+     * Institutional Implementing Agency
+     * Measurable Impact
+     * Exact Nepal Act / Policy clause in brackets (e.g., [Act: Food Hygiene & Quality Act 2081, Sec. 12])
+   - VIBRANT COLOR CODING: You MUST apply style rules to nodes:
+     * Green nodes (Inputs, sustainable practices): style NodeID fill:#dcfce7,stroke:#16a34a,stroke-width:2px
+     * Blue nodes (Logistics, technology, processing): style NodeID fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
+     * Amber nodes (Thresholds, inspections, monitoring): style NodeID fill:#fef3c7,stroke:#d97706,stroke-width:2px
+     * Red/Pink nodes (Hazards, chemical last-resort, loss): style NodeID fill:#fee2e2,stroke:#dc2626,stroke-width:2px
+     * Purple nodes (Governance, policies, acts): style NodeID fill:#f3e8ff,stroke:#9333ea,stroke-width:2px
 
-10-MARK ANSWER ARCHITECTURE:
-1. Introduction with National Agricultural Census 2078 Data
-2. Primary Categorical & Ordered Mermaid Diagram
-3. 45-Second Exam Hand-Drawn Blueprint (Clean ASCII box sketch)
-4. Structured Technical & Policy Matrix
-5. High-Impact Action Interventions
-6. Strategic Conclusion
+3. SECONDARY ANALYTICAL VISUAL (2x2 Matrix, SWOT, Pyramid, Radar, or Graph Blueprint):
+   - Provide a secondary visual model (e.g., a Comparative 2x2 Matrix, a Decision Tree, or a labeled Graph Blueprint with X/Y axes and threshold curves).
+
+4. 45-SECOND EXAM-HALL HAND-DRAWN BLUEPRINT:
+   - Provide an ASCII box sketch with clear technical labels and arrows that the candidate can draw with a pen in 45 seconds on their paper.
+
+5. HIGH-DENSITY POLICY & INDICATOR LEDGER:
+   - A structured matrix linking each step of the figure to: (1) Technical Standard, (2) Key Performance Indicator, (3) Nepal Legal Act/Policy Clause.
+
+STRICT MERMAID SYNTAX RULES (ZERO ERRORS):
+- ALWAYS format node IDs with double quotes: NodeID["<b>Title</b><br/>• Standard: ...<br/>• <i>[Policy: Act Name]</i>"]
+- NEVER use rounded parentheses NodeID(...) because nested parens like '(apple rootstock)' crash the Mermaid parser!
+- NEVER use curly quotes (' ‘ ’ “ ” ') or unicode superscripts (ha⁻¹ -> write /ha).
 """
 
+# ---------------------------------------------------------
+# Dynamic Model Discovery & Sanitization Functions
+# ---------------------------------------------------------
 def get_working_groq_model(client: Groq) -> str:
-    """Detects and selects the highest-performance available active model."""
     priority_order = [
         "openai/gpt-oss-120b",
         "qwen/qwen3.8-27b",
@@ -208,40 +240,28 @@ def get_working_groq_model(client: Groq) -> str:
     return "openai/gpt-oss-120b"
 
 def extract_mermaid_code(text: str) -> str:
-    """Safely extracts the first mermaid code block."""
     pattern = r"```(?:mermaid|Mermaid)\s*([\s\S]*?)\s*```"
     match = re.search(pattern, text)
     return match.group(1).strip() if match else ""
 
 def sanitize_mermaid_code(code: str) -> str:
-    """
-    Cleans and repairs Mermaid syntax errors automatically:
-    - Normalizes smart quotes and unicode superscripts
-    - Fixes unquoted parentheses causing parser 'got PS' errors
-    - Ensures all node labels are safe rectangular cards ["..."]
-    """
+    """Sanitizes Mermaid code to prevent parser crashes."""
     if not code:
         return ""
-    
-    # 1. Replace smart quotes
     code = code.replace("‘", "'").replace("’", "'").replace("“", "'").replace("”", "'")
-    
-    # 2. Replace unicode superscripts
     superscripts = {"⁰":"0", "¹":"1", "²":"2", "³":"3", "⁴":"4", "⁵":"5", "⁶":"6", "⁷":"7", "⁸":"8", "⁹":"9", "⁻":"-", "⁺":"+"}
     for k, v in superscripts.items():
         code = code.replace(k, v)
     code = code.replace("ha-1", "/ha").replace("kg-1", "/kg")
     
-    # 3. Line-by-line sanitization
     cleaned_lines = []
     for line in code.split("\n"):
         stripped = line.strip()
-        # Preserve structural declarations
         if any(stripped.startswith(p) for p in ["graph ", "flowchart ", "classDef ", "style ", "subgraph ", "end", "%%"]):
             cleaned_lines.append(line)
             continue
         
-        # Convert any NodeId(text (with nested parens)) to NodeId["text (with nested parens)"]
+        # Replace Node(nested (parens)) with Node["nested (parens)"]
         def fix_parens(match):
             node_id = match.group(1)
             content = match.group(2).strip()
@@ -252,7 +272,7 @@ def sanitize_mermaid_code(code: str) -> str:
 
         line = re.sub(r'\b([A-Za-z0-9_]+)\(([\s\S]*?)\)(?=\s*(?:-->|---|==>|-\.->|--\w+-->|;|\n|$))', fix_parens, line)
         
-        # Ensure NodeId[text] has double quotes: NodeId["text"]
+        # Ensure brackets have quotes: Node[content] -> Node["content"]
         def fix_brackets(match):
             node_id = match.group(1)
             content = match.group(2).strip()
@@ -262,7 +282,6 @@ def sanitize_mermaid_code(code: str) -> str:
             return f'{node_id}["{content}"]'
 
         line = re.sub(r'\b([A-Za-z0-9_]+)\[(?!")(.*?)\](?=\s*(?:-->|---|==>|-\.->|--\w+-->|;|\n|$))', fix_brackets, line)
-        
         cleaned_lines.append(line)
         
     return "\n".join(cleaned_lines)
@@ -277,29 +296,29 @@ def generate_highres_image_url(mermaid_code: str) -> str:
 # ---------------------------------------------------------
 st.markdown("""
 <div class="hero-banner">
-    <h1>🌾 Loksewa Agri Officer: Master Visual & Policy Engine</h1>
-    <p>Categorical & Chronological Diagrams • Auto-Sanitized Mermaid • Full-Screen View • Internal Vault</p>
+    <h1>🌱 Loksewa Agri Officer: Master Visual Engine</h1>
+    <p>30 Dynamic Visual Archetypes • Descriptive Node Capsules • Vibrant Color Coding • Direct Policy Embedded</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# Main Tabs: Generator vs In-System Saved Vault
+# Working Tabs
 # ---------------------------------------------------------
-tab_generator, tab_vault = st.tabs(["✍️ Answer & Visual Generator", "📚 In-System Revision Vault"])
+tab_generator, tab_vault = st.tabs(["📊 Visual Answer Generator", "📚 In-System Revision Vault"])
 
 # =========================================================
-# TAB 1: GENERATOR
+# TAB 1: VISUAL ANSWER GENERATOR
 # =========================================================
 with tab_generator:
     user_query = st.text_area(
         "Enter Loksewa Question / Syllabus Topic (10 Marks):",
-        placeholder="Type any syllabus topic (e.g., Commercial Tomato Cultivation Inside Tunnels, Rootstock-Scion Interaction, Citrus Decline Management)...",
+        placeholder="Type any syllabus topic (e.g., Value Chain in Agriculture, Law of Diminishing Marginal Returns, Post-Harvest Loss Management, Citrus Decline, Tomato Tunnel Cultivation, Plant Quarantine)...",
         height=110
     )
 
-    if st.button("Generate Categorical Visual Answer", type="primary", use_container_width=True):
+    if st.button("Generate Visual-First Answer", type="primary", use_container_width=True):
         if not api_key:
-            st.error("⚠️ GROQ_API_KEY is not configured. Please add it to your Streamlit Cloud Settings -> Secrets.")
+            st.error("⚠️ GROQ_API_KEY is not set. Please add it to your Streamlit Cloud Settings -> Secrets.")
         elif not user_query.strip():
             st.warning("⚠️ Please enter a question or topic first.")
         else:
@@ -311,18 +330,20 @@ with tab_generator:
             QUESTION: {user_query}
             WEIGHTAGE: 10 Marks
             
-            MANDATORY COMPLIANCE:
-            - The Mermaid diagram and ASCII blueprint MUST be strictly CATEGORICAL and CHRONOLOGICALLY ORDERED.
-            - Format EVERY node strictly as NodeID["..."] with double quotes to prevent syntax errors. Never use rounded parentheses NodeID(...).
-            - Every node must be a DESCRIPTIVE MINI-CARD containing technical standards, field agents, measurable impacts, and exact Nepal policies/Acts.
-            - Include the 45-second ASCII blueprint for exam paper drawing, technical-policy matrix, and crisp action points.
+            CRITICAL INSTRUCTION:
+            - THE ANSWER MUST BE ENTIRELY READABLE AND DERIVABLE DIRECTLY FROM THE FIGURES!
+            - Avoid lengthy text narratives.
+            - Provide a Primary Descriptive Mermaid Diagram using vibrant color styling (green, blue, amber, red, purple).
+            - Dynamically select the best models from the 30-archetype catalog (Flowchart, Value Chain, Fishbone, Problem Tree, 2x2 Matrix, Hierarchy, etc.).
+            - Provide a Secondary Analytical Visual (2x2 Matrix, SWOT, or Graph Blueprint).
+            - Provide the 45-second ASCII Exam Blueprint and Policy Ledger.
             """
             
-            with st.spinner(f"Engine ({active_model}) organizing categorical stages & linking Nepal policies..."):
+            with st.spinner(f"Designing color-coded visual architecture using engine ({active_model})..."):
                 try:
                     completion = client.chat.completions.create(
                         messages=[
-                            {"role": "system", "content": SYSTEM_PROMPT},
+                            {"role": "system", "content": VISUAL_MASTER_SYSTEM_PROMPT},
                             {"role": "user", "content": full_prompt}
                         ],
                         model=active_model,
@@ -363,18 +384,18 @@ with tab_generator:
                     st.session_state["current_mermaid"],
                     st.session_state["current_img_url"]
                 )
-                st.success("✅ Successfully saved to your In-System Vault! You can review it anytime in the 'In-System Revision Vault' tab without downloading.")
+                st.success("✅ Saved to internal vault! You can study it anytime in the 'In-System Revision Vault' tab.")
 
         # Diagram Render Block
         if st.session_state["current_mermaid"]:
-            st.markdown('<div class="diagram-card">', unsafe_allow_html=True)
-            st.markdown("### 🖼️ Categorical & Chronological Visual Architecture")
+            st.markdown('<div class="diagram-frame">', unsafe_allow_html=True)
+            st.markdown('<div class="diagram-title">🎨 Primary Visual Architecture (Complete Answer In-Figure)</div>', unsafe_allow_html=True)
             st.markdown(f"```mermaid\n{st.session_state['current_mermaid']}\n```")
-            st.caption("Categorically structured with embedded technical standards and responsible policy frameworks.")
+            st.caption("Color-coded by stage: Green (Input/Bio), Blue (Tech/Transit), Amber (Thresholds), Red (Pest/Loss), Purple (Policy/Acts).")
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # Full 10-Mark Answer Sheet
-        st.markdown("### 📝 Complete 10-Mark Loksewa Examination Sheet")
+        # Full Visual-Dominant Exam Sheet Display
+        st.markdown("### 📋 Complete 10-Mark Visual Answer Sheet")
         st.markdown(st.session_state["current_answer"])
 
 # =========================================================
@@ -382,12 +403,12 @@ with tab_generator:
 # =========================================================
 with tab_vault:
     st.subheader("📚 In-System Revision Vault")
-    st.caption("All answers and diagrams saved here remain on the system server. No files are downloaded to your personal computer.")
+    st.caption("Saved answers and diagrams remain stored inside the server database. No files are downloaded to your personal computer.")
     
     saved_items = get_all_vault_items()
     
     if not saved_items:
-        st.info("Your vault is currently empty. Generate an answer in Tab 1 and click '💾 Save to Revision Vault'.")
+        st.info("Your vault is currently empty. Generate a visual answer in Tab 1 and click '💾 Save to Revision Vault'.")
     else:
         for item in saved_items:
             item_id, item_time, item_q, item_ans, item_mmd, item_url = item
@@ -398,7 +419,7 @@ with tab_vault:
                     if item_url:
                         st.markdown(
                             f'<a href="{item_url}" target="_blank" class="open-window-btn">'
-                            f'🔍 Open Picture in Full Window ↗</a>',
+                            f'🔍 Open Picture in Full Screen (New Window) ↗</a>',
                             unsafe_allow_html=True
                         )
                 with col_v2:
@@ -407,7 +428,7 @@ with tab_vault:
                         st.rerun()
 
                 if item_mmd:
-                    st.markdown('<div class="diagram-card">', unsafe_allow_html=True)
+                    st.markdown('<div class="diagram-frame">', unsafe_allow_html=True)
                     st.markdown(f"```mermaid\n{item_mmd}\n```")
                     st.markdown('</div>', unsafe_allow_html=True)
 
