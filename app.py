@@ -1,8 +1,6 @@
 import streamlit as st
 from groq import Groq
 import re
-import base64
-import requests
 import os
 import sqlite3
 from datetime import datetime
@@ -17,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom High-Contrast, Distinguished Card Styling
+# Custom High-Contrast, Eye-Catching Dashboard Styling
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
@@ -53,57 +51,10 @@ st.markdown("""
         font-weight: 500;
     }
     
-    /* Visual Frame Cards */
-    .fig-frame {
-        background: #ffffff;
-        border: 2px solid #cbd5e1;
-        border-radius: 14px;
-        padding: 20px;
-        margin: 20px 0;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-    }
-    .fig-title {
-        font-weight: 800;
-        font-size: 1.15rem;
-        color: #065f46;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    /* Full-Screen Button Link */
-    .open-window-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        color: #ffffff !important;
-        padding: 11px 22px;
+    /* Action Buttons */
+    .stButton > button {
         border-radius: 8px;
-        text-decoration: none;
         font-weight: 700;
-        font-size: 0.95rem;
-        transition: all 0.2s ease-in-out;
-        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.35);
-    }
-    .open-window-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(5, 150, 105, 0.45);
-        color: #ffffff !important;
-    }
-
-    /* Monospace Blueprint Box */
-    .blueprint-box {
-        background-color: #f8fafc;
-        border: 1.5px dashed #0284c7;
-        border-radius: 10px;
-        padding: 16px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.88rem;
-        line-height: 1.5;
-        color: #0f172a;
-        overflow-x: auto;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -121,21 +72,19 @@ def init_vault_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp TEXT,
             question TEXT,
-            answer TEXT,
-            mermaid_code TEXT,
-            image_url TEXT
+            answer TEXT
         )
     """)
     conn.commit()
     conn.close()
 
-def save_to_vault(question, answer, mermaid_code, image_url):
+def save_to_vault(question, answer):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     c.execute(
-        "INSERT INTO visual_vault (timestamp, question, answer, mermaid_code, image_url) VALUES (?, ?, ?, ?, ?)",
-        (now, question, answer, mermaid_code, image_url)
+        "INSERT INTO visual_vault (timestamp, question, answer) VALUES (?, ?, ?)",
+        (now, question, answer)
     )
     conn.commit()
     conn.close()
@@ -143,7 +92,7 @@ def save_to_vault(question, answer, mermaid_code, image_url):
 def get_all_vault_items():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT id, timestamp, question, answer, mermaid_code, image_url FROM visual_vault ORDER BY id DESC")
+    c.execute("SELECT id, timestamp, question, answer FROM visual_vault ORDER BY id DESC")
     rows = c.fetchall()
     conn.close()
     return rows
@@ -171,55 +120,48 @@ You are the Chief Examination Answer Architect and Senior Agriculture Specialist
 ABSOLUTE MANDATE: ZERO PRESET OR RECYCLED BOILERPLATE!
 Every question must be analyzed contextually. NEVER force-fit unrelated laws. Adapt dynamically to the specific discipline.
 
+CRITICAL INSTRUCTION - NO MERMAID CODE BLOCKS:
+Do NOT output ```mermaid code blocks. Present all visual models using clean, formatted Markdown visual structures, high-contrast tables, bulleted frameworks, and ASCII blueprints.
+
 1. CONTEXTUAL POLICY CITATION (SUBSTANCE ONLY):
-Cite ONLY the specific acts, standards, or guidelines governing that domain and state WHAT the policy actually mandates (e.g., Food Hygiene & Quality Act 2081 Sec 14 for MRL/traceability, Seeds Act 2045 Sec 16 for Truthful Labeling, Plant Protection Act 2064 for PRA/quarantine, Subsidized Fertilizer Directives for nutrient quotas).
+Cite ONLY the specific acts, standards, or guidelines governing that domain and state WHAT the policy actually mandates:
+- Food Hygiene & Quality Act 2081 (Sec. 14 for MRL/traceability & seizure powers)
+- Seeds Act 2045 (Amended 2079, Sec. 16 for Truthful Labeling, min 85% germination & 98% purity)
+- Plant Protection Act 2064 & Pesticides Management Act 2076 (Sec. 8 banned list & strict PHI)
+- 16th Periodic Plan (2081/82 - 2085/86: 4.5% sector growth, 50 cold corridors, <12% post-harvest loss)
+- Agriculture Development Strategy (ADS 2015-2035: Productivity & Commercialization pillars)
+- Constitution of Nepal (Art. 36: Food Sovereignty; Art. 51: State agricultural policies)
 
-2. STRICT MERMAID RULES (PREVENT ALL PARSER CRASHES):
-- NODE IDENTIFIERS MUST START WITH LETTERS: Never use raw numbers as IDs like 1, 2, 3! ALWAYS write N1, N2, N3, or A1, A2, B1.
-- MAKE TOPICS BOLD: The very first line inside every node MUST be bold using **Topic Title**.
-- ABSOLUTELY NEVER USE <br> OR <br/> TAGS: Write real newlines inside strings.
-- Format every node as:
-  N1["`**1. Bold Topic Title**
-  • Technical Standard: xyz
-  • Impact: abc
-  • Policy Mandate: exact clause`"]
-- NEVER use rounded parenthesis node shapes like N1(...).
-- ALWAYS end classDef lines with a semicolon (;).
-
-3. MANDATORY: EXTENSIVE DEPTH IN SWOT & MATRICES (>5 POINTS EACH):
-- For SWOT Analysis: You MUST provide MORE THAN 5 POINTS (at least 6-7 distinct, highly technical, substantive points) in EACH of the 4 quadrants:
+2. MANDATORY: EXTENSIVE DEPTH IN SWOT & MATRICES (>5 POINTS EACH):
+- For SWOT Analysis: You MUST provide MORE THAN 5 POINTS (at least 6-7 distinct, highly technical points) in EACH of the 4 quadrants:
   * Strengths (6+ points): Concrete Nepali agro-climatic, genetic, or institutional assets.
   * Weaknesses (6+ points): Specific structural, input, yield gap, and infrastructure deficits.
   * Opportunities (6+ points): Commercialization, export, processing, and digital horizons.
-  * Threats (6+ points): Climate vulnerabilities, vector outbreaks, market volatility, and SPS import competition.
-- For 2x2 Decision Matrix / Comparison Matrix:
-  * MUST contain MORE THAN 5 DISTINCT CRITERIA ROWS (at least 6-7 rows comparing Technical Parameters, Field Protocols, Implementing Agencies, Measurable KPIs, Legal Acts, and Risk Mitigations).
-- For Primary Mermaid Diagram:
-  * MUST contain at least 5-6 sequentially connected nodes with bold headings and theme colors.
+  * Threats (6+ points): Climate vulnerabilities, vector outbreaks, market volatility, and SPS competition.
+- For 2x2 Decision Matrix / Analytical Comparison:
+  * MUST contain MORE THAN 5 DISTINCT CRITERIA (at least 6-7 rows comparing Technical Parameters, Field Protocols, Implementing Agencies, Measurable KPIs, Legal Acts, and Risk Mitigations).
 
-CATALOG OF 30 DYNAMIC VISUAL ARCHETYPES:
-[Flowchart, Cycle Diagram, Cause–Effect Diagram, Fishbone (Ishikawa), Problem Tree, Solution Tree / Objective Tree, Pyramid Diagram, Venn Diagram, Mind Map, Concept Map, Tree Diagram, Input–Output Model, Value Chain Diagram, SWOT Analysis, 2×2 Matrix, Timeline, Decision Tree, Comparison Matrix, Resource Flow Diagram, Infographic, Bar Graph Blueprint, Line Graph Blueprint, Pie Chart Blueprint, Scatter Plot, Spider/Radar Diagram, Process Diagram, Hierarchy Diagram, Network Diagram, Funnel Diagram, Circular Flow Diagram]
+3. ABSOLUTELY ZERO <br> TAGS:
+Never write <br> or <br/> tags anywhere in the output. Use standard markdown line breaks.
 
 MANDATORY 10-MARK STRUCTURE:
 1. EXECUTIVE SNAPSHOT:
    - Precise 2-line technical definition.
    - Commodity/Topic-specific baseline data from Nepal Agricultural Census 2078 or latest MoALD reports.
-2. FIGURE 1: PRIMARY CONTEXTUAL MERMAID DIAGRAM:
-   - Strict category/chronological order (5-6 nodes).
-   - Every node has a BOLD TOPIC on the first line.
-   - Zero <br> tags.
-   - Node IDs start with letters (N1, N2...).
-   - Embedded substantive policy mandates.
-3. FIGURE 2: EXTENSIVE SWOT ANALYSIS / 2x2 DECISION MATRIX (MORE THAN 5 POINTS PER CATEGORY):
-   - At least 6-7 deep, technical bullet points per quadrant/dimension.
-4. FIGURE 3: 45-SECOND EXAM HAND-DRAWN BLUEPRINT:
-   - Clean ASCII sketch matching the exact topic for immediate answer-sheet reproduction.
-5. FIGURE 4: COMPREHENSIVE POLICY & TECHNICAL MATRIX:
-   - Structured table connecting figure nodes to exact technical parameters and what the relevant law specifically mandates (6+ rows).
+2. FIGURE 1: PRIMARY SEQUENTIAL FLOW ARCHITECTURE:
+   - Present a clean, structured linear step-by-step visual pipeline using bold headings and bulleted standards (5-6 sequential phases).
+3. FIGURE 2: EXTENSIVE SWOT ANALYSIS (>5 POINTS PER QUADRANT):
+   - 6+ Strengths, 6+ Weaknesses, 6+ Opportunities, 6+ Threats.
+4. FIGURE 3: 2x2 DECISION MATRIX / ANALYTICAL COMPARISON:
+   - A structured comparative matrix with 6+ distinct technical and operational criteria.
+5. FIGURE 4: 45-SECOND EXAM HAND-DRAWN BLUEPRINT:
+   - A clean ASCII box diagram that candidates can sketch with pen/pencil in 45 seconds on their paper.
+6. FIGURE 5: SUBSTANTIVE POLICY & TECHNICAL MATRIX:
+   - Table with 6+ rows connecting each phase to exact technical standards and substantive legal mandates.
 """
 
 # ---------------------------------------------------------
-# Robust Helper Functions & Auto-Sanitizer
+# Robust Helper Functions
 # ---------------------------------------------------------
 def get_working_groq_model(client: Groq) -> str:
     priority_order = [
@@ -241,103 +183,15 @@ def get_working_groq_model(client: Groq) -> str:
         pass
     return "openai/gpt-oss-120b"
 
-def extract_mermaid_code(text: str) -> str:
-    pattern = r"```(?:mermaid|Mermaid)\s*([\s\S]*?)\s*```"
-    match = re.search(pattern, text)
-    return match.group(1).strip() if match else ""
-
-def sanitize_mermaid_code(code: str) -> str:
-    """
-    Bulletproof Mermaid Sanitizer:
-    1. Eradicates all <br> tags
-    2. Replaces broken classDef definitions with verified, semicolon-terminated classes
-    3. Converts digit-starting node IDs (1, 2) to (N1, N2) without look-behind errors
-    4. Formats nodes as Markdown strings ["`**Title**\n• ...`"]
-    """
-    if not code:
-        return ""
-    
-    # 1. Total eradication of <br> tags
-    code = re.sub(r'(?:<br\s*/?>|&lt;br\s*/?&gt;)', '\n', code, flags=re.IGNORECASE)
-    code = re.sub(r'</?(?:b|strong)>', '**', code, flags=re.IGNORECASE)
-    code = re.sub(r'<[^>]+>', '', code)
-    
-    # 2. Normalize quotes and superscripts
-    code = code.replace("‘", "'").replace("’", "'").replace('“', "'").replace('”', "'")
-    superscripts = {"⁰":"0", "¹":"1", "²":"2", "³":"3", "⁴":"4", "⁵":"5", "⁶":"6", "⁷":"7", "⁸":"8", "⁹":"9", "⁻":"-", "⁺":"+"}
-    for k, v in superscripts.items():
-        code = code.replace(k, v)
-    code = code.replace("ha-1", "/ha").replace("kg-1", "/kg")
-    
-    lines = [l.strip() for l in code.split("\n") if l.strip()]
-    if not lines:
-        return ""
-    
-    # Ensure declaration
-    first_line = lines[0].lower()
-    if not (first_line.startswith("flowchart") or first_line.startswith("graph")):
-        lines.insert(0, "flowchart TD")
-        
-    cleaned_lines = []
-    
-    # Remove any broken classDef lines from model
-    core_lines = [l for l in lines if not l.startswith("classDef")]
-    
-    # Inject guaranteed clean color definitions with terminating semicolons
-    cleaned_lines.append(core_lines[0])
-    cleaned_lines.append("    classDef cGreen fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46;")
-    cleaned_lines.append("    classDef cBlue fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e40af;")
-    cleaned_lines.append("    classDef cAmber fill:#fffbeb,stroke:#d97706,stroke-width:2px,color:#92400e;")
-    cleaned_lines.append("    classDef cRed fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#991b1b;")
-    cleaned_lines.append("    classDef cPurple fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#6b21a8;")
-    
-    for line in core_lines[1:]:
-        stripped = line.strip()
-        if any(stripped.startswith(p) for p in ["flowchart", "graph", "subgraph", "end", "style", "class ", "%%"]):
-            cleaned_lines.append(line)
-            continue
-        
-        # FIX 1: Prefix numeric IDs (e.g. 1[...], 1 --> 2) with 'N' using standard capturing group (NO LOOK-BEHIND)
-        line = re.sub(
-            r'(^|[\s;,(\[{])(\d+[A-Za-z0-9_]*)(?=\s*(?:\[|\(|:::|-->|---|==>|-\.->|--\w+-->|;|\n|$))',
-            r'\1N\2',
-            line
-        )
-        
-        # FIX 2: Format nodes into clean Markdown strings ["`...`"]
-        def format_markdown_node(match):
-            node_id = match.group(1)
-            raw_text = match.group(2).strip()
-            
-            # Clean outer quotes/backticks
-            if raw_text.startswith('`') and raw_text.endswith('`'):
-                raw_text = raw_text[1:-1].strip()
-            if (raw_text.startswith('"') and raw_text.endswith('"')) or (raw_text.startswith("'") and raw_text.endswith("'")):
-                raw_text = raw_text[1:-1].strip()
-                
-            raw_text = raw_text.replace('"', "'")
-            raw_text = re.sub(r'(?:<br\s*/?>|&lt;br\s*/?&gt;)', '\n', raw_text, flags=re.IGNORECASE)
-            return f'{node_id}["`{raw_text}`"]'
-
-        line = re.sub(r'\b([A-Za-z0-9_]+)\((.*?)\)(?=\s*(?:-->|---|==>|-\.->|--\w+-->|;|\n|:::|$))', format_markdown_node, line)
-        line = re.sub(r'\b([A-Za-z0-9_]+)\[(?!`)(.*?)\](?=\s*(?:-->|---|==>|-\.->|--\w+-->|;|\n|:::|$))', format_markdown_node, line)
-        
-        cleaned_lines.append(line)
-        
-    final_mermaid = "\n".join(cleaned_lines)
-    final_mermaid = re.sub(r'(?:<br\s*/?>|&lt;br\s*/?&gt;)', '\n', final_mermaid, flags=re.IGNORECASE)
-    return final_mermaid
-
 def sanitize_markdown_text(text: str) -> str:
-    """Removes stray <br> tags from the answer sheet text."""
+    """Removes stray <br> tags and any unwanted raw mermaid blocks."""
     if not text:
         return ""
-    return re.sub(r'(?:<br\s*/?>|&lt;br\s*/?&gt;)', '\n', text, flags=re.IGNORECASE)
-
-def generate_highres_image_url(mermaid_code: str) -> str:
-    """Generates direct URL for full-screen view at scale=3 on a pure white canvas."""
-    encoded = base64.b64encode(mermaid_code.encode("utf-8")).decode("ascii")
-    return f"https://mermaid.ink/img/{encoded}?bgColor=white&scale=3"
+    # Strip <br> tags
+    text = re.sub(r'(?:<br\s*/?>|&lt;br\s*/?&gt;)', '\n', text, flags=re.IGNORECASE)
+    # Strip any stray mermaid blocks if generated
+    text = re.sub(r'```(?:mermaid|Mermaid)[\s\S]*?```', '', text)
+    return text.strip()
 
 # ---------------------------------------------------------
 # Top Header Banner
@@ -345,7 +199,7 @@ def generate_highres_image_url(mermaid_code: str) -> str:
 st.markdown("""
 <div class="hero-banner">
     <h1>🌱 Loksewa Agri Officer: Master Visual Engine</h1>
-    <p>Zero-Error Mermaid Architecture • >5 Points per Matrix/SWOT • Bold Topics • In-System Vault</p>
+    <p>Contextual Policy Mandates • Extensive SWOT (>5 Points) • 2x2 Decision Matrix • In-System Vault</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -379,11 +233,13 @@ with tab_generator:
             WEIGHTAGE: 10 Marks
             
             CRITICAL EXECUTION MANDATES:
-            1. FIGURE 1 (PRIMARY MERMAID): 5-6 sequentially connected nodes with bold titles, attractive colors, and NO <br> tags. Node IDs must start with letters (N1, N2...).
-            2. FIGURE 2 (SWOT / 2x2 DECISION MATRIX): You MUST provide MORE THAN 5 POINTS (at least 6-7 distinct, substantive points) in each quadrant/dimension!
-            3. FIGURE 3 (ASCII BLUEPRINT): Clean 45-second drawing for exam answer sheet.
-            4. FIGURE 4 (POLICY & TECHNICAL MATRIX): Table with at least 6-7 rows specifying exact technical standards and substantive legal mandates.
-            5. CONTEXTUAL POLICY CITATION: Cite ONLY the acts and guidelines that legally apply to this specific subject matter and state what they mandate.
+            1. DO NOT GENERATE MERMAID CODE BLOCKS. Present visuals using clean Markdown flow architecture, tables, and ASCII blueprints.
+            2. FIGURE 1 (SEQUENTIAL FLOW): 5-6 sequential stages with bold titles and exact technical standards.
+            3. FIGURE 2 (SWOT ANALYSIS): Provide MORE THAN 5 POINTS (at least 6-7 distinct, highly technical points) in EACH of the 4 quadrants!
+            4. FIGURE 3 (2x2 DECISION MATRIX): Table with at least 6-7 criteria rows comparing technical, financial, and policy dimensions.
+            5. FIGURE 4 (ASCII BLUEPRINT): Clean 45-second drawing for exam answer sheet.
+            6. FIGURE 5 (POLICY & TECHNICAL MATRIX): Table with at least 6-7 rows specifying exact technical standards and substantive legal mandates.
+            7. CONTEXTUAL POLICY CITATION: Cite ONLY the acts and guidelines that legally apply to this specific subject matter and state what they mandate.
             """
             
             with st.spinner(f"Analyzing subject context and synthesizing tailored visual architecture with ({active_model})..."):
@@ -400,13 +256,9 @@ with tab_generator:
                     
                     raw_answer = completion.choices[0].message.content
                     clean_answer = sanitize_markdown_text(raw_answer)
-                    raw_mermaid = extract_mermaid_code(clean_answer)
-                    clean_mermaid = sanitize_mermaid_code(raw_mermaid)
                     
                     st.session_state["current_question"] = user_query
                     st.session_state["current_answer"] = clean_answer
-                    st.session_state["current_mermaid"] = clean_mermaid
-                    st.session_state["current_img_url"] = generate_highres_image_url(clean_mermaid) if clean_mermaid else ""
                     
                 except Exception as err:
                     st.error(f"Error communicating with Groq API: {str(err)}")
@@ -415,53 +267,15 @@ with tab_generator:
     if "current_answer" in st.session_state:
         st.markdown("---")
         
-        # Action Bar: Full Screen & Save to System
-        col_act1, col_act2 = st.columns([1, 1])
-        with col_act1:
-            if st.session_state.get("current_img_url"):
-                st.markdown(
-                    f'<a href="{st.session_state["current_img_url"]}" target="_blank" class="open-window-btn">'
-                    f'🔍 Open Figure 1 in Full Screen (New Window) ↗</a>',
-                    unsafe_allow_html=True
-                )
-        with col_act2:
-            if st.button("💾 Save to Revision Vault (Inside System)", use_container_width=True):
-                save_to_vault(
-                    st.session_state["current_question"],
-                    st.session_state["current_answer"],
-                    st.session_state["current_mermaid"],
-                    st.session_state["current_img_url"]
-                )
-                st.success("✅ Saved to internal vault! You can study it anytime in the 'In-System Revision Vault' tab.")
-
-        # Diagram Render Block (High-Res Image with Native Fallback)
-        if st.session_state.get("current_mermaid"):
-            st.markdown('<div class="fig-frame">', unsafe_allow_html=True)
-            st.markdown('<div class="fig-title">🎨 Figure 1: Primary Sequential Architecture (Bold Titles & Theme Colors)</div>', unsafe_allow_html=True)
-            
-            mermaid_code = st.session_state["current_mermaid"]
-            img_url = st.session_state.get("current_img_url", "")
-            
-            # Primary: Server-side rendered high-resolution PNG image
-            rendered_via_image = False
-            if img_url:
-                try:
-                    res = requests.get(img_url, timeout=7)
-                    if res.status_code == 200 and len(res.content) > 800:
-                        st.image(res.content, use_container_width=True, caption="Figure 1: Primary Sequential Flow (High-Res Vector Canvas)")
-                        rendered_via_image = True
-                except Exception:
-                    rendered_via_image = False
-            
-            # Secondary Fail-Safe: Native Markdown Mermaid
-            if not rendered_via_image:
-                st.markdown(f"```mermaid\n{mermaid_code}\n```")
-                
-            st.caption("Bold topic headings, attractive color coding, zero HTML tags, with substantive legal mandates embedded.")
-            st.markdown('</div>', unsafe_allow_html=True)
+        # Save to System Vault Action Button
+        if st.button("💾 Save to Revision Vault (Inside System)", use_container_width=True):
+            save_to_vault(
+                st.session_state["current_question"],
+                st.session_state["current_answer"]
+            )
+            st.success("✅ Successfully saved to your internal vault! You can study it anytime in the 'In-System Revision Vault' tab.")
 
         # Full Visual-Dominant Exam Sheet Display
-        st.markdown("### 📋 Complete 10-Mark Contextual Answer Sheet")
         st.markdown(st.session_state["current_answer"])
 
 # =========================================================
@@ -469,7 +283,7 @@ with tab_generator:
 # =========================================================
 with tab_vault:
     st.subheader("📚 In-System Revision Vault")
-    st.caption("Saved answers and diagrams remain stored inside the server database. No files are downloaded to your personal computer.")
+    st.caption("Saved answers remain stored inside the server database. No files are downloaded to your personal computer.")
     
     saved_items = get_all_vault_items()
     
@@ -477,35 +291,11 @@ with tab_vault:
         st.info("Your vault is currently empty. Generate a visual answer in Tab 1 and click '💾 Save to Revision Vault'.")
     else:
         for item in saved_items:
-            item_id, item_time, item_q, item_ans, item_mmd, item_url = item
+            item_id, item_time, item_q, item_ans = item
             
             with st.expander(f"📌 {item_q} (Saved: {item_time})", expanded=False):
-                col_v1, col_v2 = st.columns([3, 1])
-                with col_v1:
-                    if item_url:
-                        st.markdown(
-                            f'<a href="{item_url}" target="_blank" class="open-window-btn">'
-                            f'🔍 Open Picture in Full Screen (New Window) ↗</a>',
-                            unsafe_allow_html=True
-                        )
-                with col_v2:
-                    if st.button("🗑️ Delete from Vault", key=f"del_{item_id}", use_container_width=True):
-                        delete_vault_item(item_id)
-                        st.rerun()
-
-                if item_mmd:
-                    st.markdown('<div class="fig-frame">', unsafe_allow_html=True)
-                    rendered_vault_img = False
-                    if item_url:
-                        try:
-                            v_res = requests.get(item_url, timeout=5)
-                            if v_res.status_code == 200 and len(v_res.content) > 800:
-                                st.image(v_res.content, use_container_width=True)
-                                rendered_vault_img = True
-                        except Exception:
-                            rendered_vault_img = False
-                    if not rendered_vault_img:
-                        st.markdown(f"```mermaid\n{item_mmd}\n```")
-                    st.markdown('</div>', unsafe_allow_html=True)
+                if st.button("🗑️ Delete from Vault", key=f"del_{item_id}", use_container_width=True):
+                    delete_vault_item(item_id)
+                    st.rerun()
 
                 st.markdown(item_ans)
