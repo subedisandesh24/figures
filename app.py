@@ -82,19 +82,6 @@ st.markdown("""
         box-shadow: 0 6px 16px rgba(21, 128, 61, 0.45);
         color: #ffffff !important;
     }
-
-    /* Monospace Blueprint Block */
-    .ascii-box {
-        background-color: #f8fafc;
-        border: 1.5px solid #94a3b8;
-        border-radius: 8px;
-        padding: 16px;
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 0.88rem;
-        line-height: 1.45;
-        color: #0f172a;
-        overflow-x: auto;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -154,69 +141,49 @@ api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", ""))
 
 SYSTEM_PROMPT = """
 You are a senior Nepalese Agriculture Officer, Loksewa answer evaluator, policy specialist, and technical examination answer architect.
-Your mission is to produce a HIGH-SCORING, 10-MARK answer for the Nepal Public Service Commission (Gazetted 3rd Class Agriculture Officer) examination across all disciplines (Agricultural Extension, Agricultural Economics, Soil Science, Agronomy, Horticulture, and Plant Protection).
+Your mission is to produce a HIGH-SCORING, 10-MARK answer for the Nepal Public Service Commission (Gazetted 3rd Class Agriculture Officer) examination across all disciplines.
 
-CRITICAL RULE 1: STRICT CATEGORICAL & CHRONOLOGICAL DIAGRAM ORDERING (NO RANDOM STRUCTURING)
-Never arrange diagram steps arbitrarily. Group and order all diagrams according to logical technical dimensions:
-1. PEST / DISEASE / WEED MANAGEMENT QUESTIONS:
-   Order strictly by the IPM Safety & Toxicity Hierarchy (Least toxic/preventative -> Most toxic/last resort):
-   Stage 1: Host Plant Resistance (Genetic tolerance, resistant rootstocks, certified seed)
-   Stage 2: Cultural / Agronomic (Sanitation, solarization, crop rotation, trap crops, spacing)
-   Stage 3: Physical & Mechanical (Hand-picking, yellow sticky traps, pheromone traps, light traps)
-   Stage 4: Biological & Microbial (Parasitoids, predators, Trichoderma, Beauveria, Metarhizium, Bt)
-   Stage 5: Biorational & Botanicals (Neem-based azadirachtin, bio-fungicides)
-   Stage 6: Chemical Controls (Last Resort: Green-label only, ETL-based, strict Pre-Harvest Interval)
+CRITICAL MANDATE 1: STRICT SYNTAX RULES FOR MERMAID (PREVENT PARSER CRASHES):
+- NEVER use rounded parenthesis node definitions like NodeID(...) because nested parentheses like '(apple rootstock)' break the parser.
+- ALWAYS use square brackets with double quotes: NodeID["Descriptive text here"].
+- NEVER use smart/curly quotes (‘, ’, “, ”) or unicode superscripts (⁻¹, ², ³). Write 'kg/ha' or 'm2'.
+- If citing something in quotes inside a node label, use single quotes (') inside the double-quoted string.
 
-2. CROP PRODUCTION / HORTICULTURE / AGRONOMY QUESTIONS:
-   Order strictly by Phenological / Operational Chronology:
-   Stage 1: Site/Soil Selection & Land Preparation (Soil testing, pH correction, liming)
-   Stage 2: Variety Selection & Sowing / Nursery Management (Breeder/Foundation seed, seedling hardening)
-   Stage 3: Vegetative Husbandry (4R Nutrient stewardship, IPNM, irrigation scheduling, training/pruning)
-   Stage 4: Reproductive / Canopy Protection (AESA scouting, pollination management, pest monitoring)
-   Stage 5: Harvesting & Maturity Indexing (Early morning harvest, shade curing)
-   Stage 6: Post-Harvest & Cold Chain (Pre-cooling, CFB sorting, ZECC/Cold store, digital marketing)
+CRITICAL MANDATE 2: STRICT CATEGORICAL & CHRONOLOGICAL DIAGRAM ORDERING:
+1. PEST / DISEASE / WEED QUESTIONS:
+   Order strictly by IPM Safety & Toxicity Hierarchy (Least toxic/preventative -> Most toxic/last resort):
+   Stage 1: Host Plant Resistance -> Stage 2: Cultural / Agronomic -> Stage 3: Physical & Mechanical -> Stage 4: Biological / Microbials -> Stage 5: Biorationals -> Stage 6: Chemical (Last Resort, Green-label only, ETL-based).
+2. CROP / HORTICULTURE / AGRONOMY QUESTIONS:
+   Order strictly by Phenological Chronology:
+   Stage 1: Site/Soil Preparation -> Stage 2: Sowing/Nursery -> Stage 3: Vegetative/IPNM -> Stage 4: Reproductive/Canopy Protection -> Stage 5: Harvest/Maturity -> Stage 6: Post-Harvest Cold Chain.
+3. VALUE CHAIN QUESTIONS:
+   Input Supply -> Production -> Aggregation -> Processing -> Storage -> Reefer Logistics -> Mandi -> Retail/Consumer.
+4. INSTITUTIONAL QUESTIONS:
+   Federal -> Provincial -> Local (Palika) -> Cooperatives/Farmers.
 
-3. VALUE CHAIN & AGRIBUSINESS QUESTIONS:
-   Order by Linear Flow:
-   Input Supply -> Production -> Aggregation/Collection -> Processing/Grading -> Packaging/Storage -> Reefer Logistics -> Mandi Wholesale -> Retail/Consumer.
+CRITICAL MANDATE 3: EMBED POLICIES & STANDARDS INSIDE NODES:
+Inside every subgraph or node, cite relevant Nepal legal frameworks:
+- Constitution of Nepal (Art 36: Food Sovereignty; Art 51)
+- Food Hygiene and Quality Act, 2081 (खाद्य स्वच्छता तथा गुणस्तर ऐन, २०८१)
+- Seeds Act 2045 (Amended 2079) & Seeds Rules 2069
+- Pesticides Management Act 2076 & Plant Protection Act 2064
+- Agriculture Development Strategy (ADS 2015-2035) & 16th Periodic Plan (2081/82 - 2085/86)
+- National Agricultural Census 2078 Data (4.13M holdings, 2.21M ha, 0.55 ha avg holding size)
 
-4. INSTITUTIONAL & GOVERNANCE QUESTIONS:
-   Order by Federal Hierarchy & Coordination:
-   Federal (MoALD / NARC / SQCC / PQPMC / DFTQC) -> Provincial (MoALD / AKC / Provincial Labs) -> Local (Palika Agriculture Section / Ward Extension) -> Farmers / Cooperatives / Private Sector.
-
-CRITICAL RULE 2: POLICY / PLAN / PUBLICATION EMBEDDED AT THE SIDE OF EACH STAGE
-Inside every subgraph or node, you MUST explicitly state the responsible Nepalese Policy, Act, or Institution:
-- Constitution of Nepal (Article 36: Food Sovereignty; Article 51: State Policies)
-- Food Hygiene and Quality Act, 2081 (खाद्य स्वच्छता तथा गुणस्तर ऐन, २०८१) [Traceability, SPS, Hygiene standards]
-- Seeds Act 2045 (Amended 2079), Seeds Rules 2069, National Seed Vision (2013-2025)
-- Pesticides Management Act 2076 & Plant Protection Act 2064 (Quarantine, Import permit, Banned list)
-- Agriculture Development Strategy (ADS 2015-2035) [Governance, Productivity, Commercialization, Competitiveness]
-- 16th Periodic Plan (2081/82 - 2085/86) [Structural transformation, cold-chain grid, commercial hubs]
-- Subsidized Chemical Fertilizer Management Directives & Insurance Premium Subsidy Procedures
-- 7th National Agricultural Census 2078 Data (4.13M holdings, 2.21M ha operated area, 0.55 ha avg holding)
-
-CRITICAL RULE 3: DESCRIPTIVE MULTI-LINE NODE CAPSULES (NO ONE-WORD LABELS)
+CRITICAL MANDATE 4: MULTI-LINE DESCRIPTIVE CARDS:
 Every node must contain:
 - Operational Title (Bold)
-- Exact Technical Parameter (dosages, temperatures, thresholds, percentages, moisture levels)
-- Implementing Agent & Quantified Impact
-- Relevant Nepal Policy / Legal Article
-
-CRITICAL RULE 4: VISUAL COLOR STYLING IN MERMAID
-Apply distinct, professional fills for each stage to ensure high readability:
-- Preventative / Cultural / Input stages: Light Green fills (`fill:#dcfce7,stroke:#16a34a`)
-- Mechanical / Processing stages: Soft Blue fills (`fill:#e0f2fe,stroke:#0284c7`)
-- Biological / Monitoring stages: Soft Amber/Yellow fills (`fill:#fef3c7,stroke:#d97706`)
-- Chemical / Loss / Warning stages: Light Pink/Red fills (`fill:#fee2e2,stroke:#dc2626`)
-- Final Output / Consumer stages: Emerald/Teal fills (`fill:#ccfbf1,stroke:#0d9488`)
+- Exact Technical Parameters (temperatures, dosages, moisture levels)
+- Implementing Agency & Measurable Impact
+- Responsible Nepal Policy / Act
 
 10-MARK ANSWER ARCHITECTURE:
-1. Technical Introduction with National Agricultural Census 2078 / MoALD Baseline Data
-2. Primary Categorical & Ordered Mermaid Diagram (Multi-line descriptive capsules + Embedded Policies)
-3. 45-Second Exam Hand-Drawn Blueprint (Clean ASCII multi-line box sketch for answer sheets)
+1. Introduction with National Agricultural Census 2078 Data
+2. Primary Categorical & Ordered Mermaid Diagram
+3. 45-Second Exam Hand-Drawn Blueprint (Clean ASCII box sketch)
 4. Structured Technical & Policy Matrix
-5. High-Yield Action Interventions (Technical terminology: GAP, SPS, IPNM, RBPR, AESA, Cold Chain Grid)
-6. Strategic Conclusion (Linking Constitution Art 36/51 & 16th Periodic Plan)
+5. High-Impact Action Interventions
+6. Strategic Conclusion
 """
 
 def get_working_groq_model(client: Groq) -> str:
@@ -246,6 +213,60 @@ def extract_mermaid_code(text: str) -> str:
     match = re.search(pattern, text)
     return match.group(1).strip() if match else ""
 
+def sanitize_mermaid_code(code: str) -> str:
+    """
+    Cleans and repairs Mermaid syntax errors automatically:
+    - Normalizes smart quotes and unicode superscripts
+    - Fixes unquoted parentheses causing parser 'got PS' errors
+    - Ensures all node labels are safe rectangular cards ["..."]
+    """
+    if not code:
+        return ""
+    
+    # 1. Replace smart quotes
+    code = code.replace("‘", "'").replace("’", "'").replace("“", "'").replace("”", "'")
+    
+    # 2. Replace unicode superscripts
+    superscripts = {"⁰":"0", "¹":"1", "²":"2", "³":"3", "⁴":"4", "⁵":"5", "⁶":"6", "⁷":"7", "⁸":"8", "⁹":"9", "⁻":"-", "⁺":"+"}
+    for k, v in superscripts.items():
+        code = code.replace(k, v)
+    code = code.replace("ha-1", "/ha").replace("kg-1", "/kg")
+    
+    # 3. Line-by-line sanitization
+    cleaned_lines = []
+    for line in code.split("\n"):
+        stripped = line.strip()
+        # Preserve structural declarations
+        if any(stripped.startswith(p) for p in ["graph ", "flowchart ", "classDef ", "style ", "subgraph ", "end", "%%"]):
+            cleaned_lines.append(line)
+            continue
+        
+        # Convert any NodeId(text (with nested parens)) to NodeId["text (with nested parens)"]
+        def fix_parens(match):
+            node_id = match.group(1)
+            content = match.group(2).strip()
+            if content.startswith('"') and content.endswith('"'):
+                return f'{node_id}[{content}]'
+            content = content.replace('"', "'")
+            return f'{node_id}["{content}"]'
+
+        line = re.sub(r'\b([A-Za-z0-9_]+)\(([\s\S]*?)\)(?=\s*(?:-->|---|==>|-\.->|--\w+-->|;|\n|$))', fix_parens, line)
+        
+        # Ensure NodeId[text] has double quotes: NodeId["text"]
+        def fix_brackets(match):
+            node_id = match.group(1)
+            content = match.group(2).strip()
+            if content.startswith('"') and content.endswith('"'):
+                return f'{node_id}[{content}]'
+            content = content.replace('"', "'")
+            return f'{node_id}["{content}"]'
+
+        line = re.sub(r'\b([A-Za-z0-9_]+)\[(?!")(.*?)\](?=\s*(?:-->|---|==>|-\.->|--\w+-->|;|\n|$))', fix_brackets, line)
+        
+        cleaned_lines.append(line)
+        
+    return "\n".join(cleaned_lines)
+
 def generate_highres_image_url(mermaid_code: str) -> str:
     """Generates direct URL for full-screen view at scale=3 on a pure white canvas."""
     encoded = base64.b64encode(mermaid_code.encode("utf-8")).decode("ascii")
@@ -257,7 +278,7 @@ def generate_highres_image_url(mermaid_code: str) -> str:
 st.markdown("""
 <div class="hero-banner">
     <h1>🌾 Loksewa Agri Officer: Master Visual & Policy Engine</h1>
-    <p>Categorical & Chronological Diagrams • Direct Policy Integration • Full-Screen View • Internal Vault</p>
+    <p>Categorical & Chronological Diagrams • Auto-Sanitized Mermaid • Full-Screen View • Internal Vault</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -272,7 +293,7 @@ tab_generator, tab_vault = st.tabs(["✍️ Answer & Visual Generator", "📚 In
 with tab_generator:
     user_query = st.text_area(
         "Enter Loksewa Question / Syllabus Topic (10 Marks):",
-        placeholder="Type any syllabus topic (e.g., Value Chain of Tomato, Citrus Decline Management, Seed Quality Certification, Law of Diminishing Returns, Post-Harvest Loss Reduction)...",
+        placeholder="Type any syllabus topic (e.g., Commercial Tomato Cultivation Inside Tunnels, Rootstock-Scion Interaction, Citrus Decline Management)...",
         height=110
     )
 
@@ -291,7 +312,8 @@ with tab_generator:
             WEIGHTAGE: 10 Marks
             
             MANDATORY COMPLIANCE:
-            - The Mermaid diagram and ASCII blueprint MUST be strictly CATEGORICAL and CHRONOLOGICALLY ORDERED (e.g., Progress of sowing, IPM safety hierarchy, value chain sequence, or governance tier).
+            - The Mermaid diagram and ASCII blueprint MUST be strictly CATEGORICAL and CHRONOLOGICALLY ORDERED.
+            - Format EVERY node strictly as NodeID["..."] with double quotes to prevent syntax errors. Never use rounded parentheses NodeID(...).
             - Every node must be a DESCRIPTIVE MINI-CARD containing technical standards, field agents, measurable impacts, and exact Nepal policies/Acts.
             - Include the 45-second ASCII blueprint for exam paper drawing, technical-policy matrix, and crisp action points.
             """
@@ -309,12 +331,13 @@ with tab_generator:
                     )
                     
                     answer_text = completion.choices[0].message.content
-                    mermaid_code = extract_mermaid_code(answer_text)
+                    raw_mermaid = extract_mermaid_code(answer_text)
+                    clean_mermaid = sanitize_mermaid_code(raw_mermaid)
                     
                     st.session_state["current_question"] = user_query
                     st.session_state["current_answer"] = answer_text
-                    st.session_state["current_mermaid"] = mermaid_code
-                    st.session_state["current_img_url"] = generate_highres_image_url(mermaid_code) if mermaid_code else ""
+                    st.session_state["current_mermaid"] = clean_mermaid
+                    st.session_state["current_img_url"] = generate_highres_image_url(clean_mermaid) if clean_mermaid else ""
                     
                 except Exception as err:
                     st.error(f"Error communicating with Groq API: {str(err)}")
@@ -375,7 +398,7 @@ with tab_vault:
                     if item_url:
                         st.markdown(
                             f'<a href="{item_url}" target="_blank" class="open-window-btn">'
-                            f'🔍 Open Picture in Full Screen (New Window) ↗</a>',
+                            f'🔍 Open Picture in Full Window ↗</a>',
                             unsafe_allow_html=True
                         )
                 with col_v2:
