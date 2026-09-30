@@ -226,8 +226,8 @@ def sanitize_mermaid_code(code: str) -> str:
     """
     Bulletproof Mermaid Sanitizer:
     1. Eradicates all <br> tags
-    2. Converts numeric node IDs (1, 2, 3) to valid alphanumeric IDs (N1, N2, N3)
-    3. Guarantees all classDef statements end with semicolons (fixes parse error at line 18)
+    2. Replaces broken classDef definitions with verified, semicolon-terminated classes
+    3. Converts digit-starting node IDs (1, 2) to (N1, N2) without look-behind errors
     4. Formats nodes as Markdown strings ["`**Title**\n• ...`"]
     """
     if not code:
@@ -249,16 +249,17 @@ def sanitize_mermaid_code(code: str) -> str:
     if not lines:
         return ""
     
+    # Ensure declaration
     first_line = lines[0].lower()
     if not (first_line.startswith("flowchart") or first_line.startswith("graph")):
         lines.insert(0, "flowchart TD")
-    
+        
     cleaned_lines = []
     
-    # Filter out LLM's broken classDef lines and inject 5 guaranteed clean ones
+    # Remove any existing, broken classDef lines from model
     core_lines = [l for l in lines if not l.startswith("classDef")]
     
-    # Insert guaranteed clean color definitions with semicolons
+    # Inject guaranteed clean color definitions with terminating semicolons
     cleaned_lines.append(core_lines[0])
     cleaned_lines.append("    classDef cGreen fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#065f46;")
     cleaned_lines.append("    classDef cBlue fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e40af;")
@@ -272,8 +273,12 @@ def sanitize_mermaid_code(code: str) -> str:
             cleaned_lines.append(line)
             continue
         
-        # FIX 1: Prefix numeric IDs (e.g. 1[...], 1 --> 2) with 'N' so they are valid Mermaid identifiers
-        line = re.sub(r'(?<=[\s;,(\[{]|^)(\d+[A-Za-z0-9_]*)(?=\s*(?:\[|\(|:::|-->|---|==>|-\.->|--\w+-->|;|\n|$))', r'N\1', line)
+        # FIX 1: Prefix numeric IDs (e.g. 1[...], 1 --> 2) with 'N' using standard capturing group (NO LOOK-BEHIND)
+        line = re.sub(
+            r'(^|[\s;,(\[{])(\d+[A-Za-z0-9_]*)(?=\s*(?:\[|\(|:::|-->|---|==>|-\.->|--\w+-->|;|\n|$))',
+            r'\1N\2',
+            line
+        )
         
         # FIX 2: Format nodes into clean Markdown strings ["`...`"]
         def format_markdown_node(match):
@@ -417,7 +422,7 @@ with tab_generator:
             rendered_via_image = False
             if img_url:
                 try:
-                    res = requests.get(img_url, timeout=6)
+                    res = requests.get(img_url, timeout=7)
                     if res.status_code == 200 and len(res.content) > 800:
                         st.image(res.content, use_container_width=True, caption="Categorical Architecture (Bold Nodes & Theme Colors)")
                         rendered_via_image = True
