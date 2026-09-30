@@ -161,14 +161,14 @@ Every question must be analyzed contextually. NEVER force-fit unrelated laws. Ad
 1. CONTEXTUAL POLICY CITATION (SUBSTANCE ONLY):
 Cite ONLY the specific acts, standards, or guidelines governing that domain and state WHAT the policy actually mandates (e.g., Food Hygiene & Quality Act 2081 Sec 14 for MRL/traceability, Seeds Act 2045 Sec 16 for Truthful Labeling, Plant Protection Act 2064 for PRA/quarantine, Subsidized Fertilizer Directives for nutrient quotas).
 
-2. BULLETPROOF MERMAID SYNTAX RULES (ZERO PARSER CRASHES):
-- NEVER USE ANY HTML TAGS: Do NOT use <br>, <br/>, <b>, </b>, <i>, </i>.
-- For line breaks inside nodes, use: \\n inside double quotes.
-- ALWAYS define nodes using clean alphanumeric IDs and double-quoted square brackets:
-  Format: NodeID["Title\\n• Standard: xyz\\n• Impact: abc\\n• Policy: exact clause"]
-- NEVER use rounded parenthesis node shapes like NodeID(...) because nested parentheses crash the parser.
+2. MERMAID SYNTAX RULES (BOLD TOPIC MANDATE & NO <br>):
+- MAKE THE TOPIC / TITLE OF EVERY NODE BOLD: Use <b>Topic Title</b> on the first line.
+- NEVER USE <br> OR <br/> TAGS: Use \\n for line breaks inside double-quoted strings.
+- Format every node as:
+  NodeID["<b>1. Bold Topic Title</b>\\n• Technical Standard: xyz\\n• Impact: abc\\n• Policy: exact clause"]
+- NEVER use rounded parenthesis node shapes like NodeID(...) because nested parentheses crash the parser. Always use square brackets NodeID["..."].
 - NEVER use curly quotes (' ‘ ’ “ ” ') or unicode superscripts (write /ha instead of ha-1).
-- Use simple flowchart syntax starting with: flowchart TD
+- Start diagrams with flowchart TD.
 
 CATALOG OF 30 DYNAMIC VISUAL ARCHETYPES:
 [Flowchart, Cycle Diagram, Cause–Effect Diagram, Fishbone (Ishikawa), Problem Tree, Solution Tree / Objective Tree, Pyramid Diagram, Venn Diagram, Mind Map, Concept Map, Tree Diagram, Input–Output Model, Value Chain Diagram, SWOT Analysis, 2×2 Matrix, Timeline, Decision Tree, Comparison Matrix, Resource Flow Diagram, Infographic, Bar Graph Blueprint, Line Graph Blueprint, Pie Chart Blueprint, Scatter Plot, Spider/Radar Diagram, Process Diagram, Hierarchy Diagram, Network Diagram, Funnel Diagram, Circular Flow Diagram]
@@ -179,7 +179,8 @@ MANDATORY 10-MARK STRUCTURE:
    - Commodity/Topic-specific baseline data from Nepal Agricultural Census 2078 or latest MoALD reports.
 2. PRIMARY CONTEXTUAL MERMAID DIAGRAM:
    - Strict category/chronological order.
-   - Valid, clean syntax without any <br> tags.
+   - Every node has a BOLD TOPIC on the first line: NodeID["<b>Topic</b>\\n• ..."].
+   - No <br> tags (clean \\n line breaks).
    - Embedded substantive policy mandates.
 3. SECONDARY ANALYTICAL VISUAL:
    - Subject-specific 2x2 Matrix, SWOT, Decision Tree, or Graph Blueprint.
@@ -220,19 +221,25 @@ def extract_mermaid_code(text: str) -> str:
 def sanitize_mermaid_code(code: str) -> str:
     """
     Robust Auto-Sanitizer for Mermaid Syntax:
-    - Strips all raw <br>, <br/>, and HTML tags
+    - Strips all raw <br>, <br/> and replaces with \n
+    - KEEPS <b> and </b> for bold topics
+    - Converts markdown **Topic** into <b>Topic</b>
     - Replaces unicode superscripts and smart quotes
-    - Wraps any loose parentheses in safe double-quoted brackets
-    - Prevents 'got PS' syntax errors
+    - Wraps any loose parentheses into safe double-quoted brackets
     """
     if not code:
         return ""
     
-    # 1. Clean out HTML tags and raw <br>
+    # 1. Clean out raw <br> tags and replace with newline
     code = re.sub(r'<br\s*/?>', r' \n ', code, flags=re.IGNORECASE)
-    code = re.sub(r'<[^>]+>', '', code)
     
-    # 2. Replace smart quotes and unicode symbols
+    # 2. Convert markdown bold **Topic** to <b>Topic</b>
+    code = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', code)
+    
+    # 3. Strip any HTML tags EXCEPT <b> and </b>
+    code = re.sub(r'<(?!/?b>)[^>]+>', '', code, flags=re.IGNORECASE)
+    
+    # 4. Replace smart quotes and unicode symbols
     code = code.replace("‘", "'").replace("’", "'").replace('“', "'").replace('”', "'")
     superscripts = {"⁰":"0", "¹":"1", "²":"2", "³":"3", "⁴":"4", "⁵":"5", "⁶":"6", "⁷":"7", "⁸":"8", "⁹":"9", "⁻":"-", "⁺":"+"}
     for k, v in superscripts.items():
@@ -288,7 +295,7 @@ def generate_highres_image_url(mermaid_code: str) -> str:
 st.markdown("""
 <div class="hero-banner">
     <h1>🌱 Loksewa Agri Officer: Master Visual Engine</h1>
-    <p>Direct Visual Rendering • No &lt;br&gt; Tags • Contextual Policies • Full-Screen View • Internal Vault</p>
+    <p>Bold Topics in Diagrams • No &lt;br&gt; Tags • Contextual Policies • Full-Screen View • Internal Vault</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -322,10 +329,10 @@ with tab_generator:
             WEIGHTAGE: 10 Marks
             
             STRICT EXECUTION DIRECTIVES:
-            1. NO PRESET OR RECYCLED BOILERPLATE: Identify the exact discipline and tailor all standards, indicators, and baseline data specifically to this topic.
-            2. CONTEXTUAL POLICY CITATION: Cite ONLY the acts, guidelines, and targets that legally apply to this specific subject matter. Detail WHAT the policy prescribes.
-            3. ZERO <br> TAGS: Absolutely never use <br> or <br/> tags. Use \\n inside double quotes.
-            4. STRICT MERMAID RULES: Format every node as NodeID["Text"]. Never use rounded parenthesis NodeID(...).
+            1. MAKE THE TOPIC BOLD: Inside every Mermaid node, the topic/title on the first line MUST be bold: <b>Topic Title</b>.
+            2. ZERO <br> TAGS: Absolutely never use <br> or <br/> tags. Use \\n inside double quotes.
+            3. NO PRESET OR RECYCLED BOILERPLATE: Tailor all standards, indicators, and baseline data specifically to this topic.
+            4. CONTEXTUAL POLICY CITATION: Cite ONLY the acts, guidelines, and targets that legally apply to this specific subject matter and state what they mandate.
             5. Provide Primary Mermaid Diagram, Secondary Analytical Visual, 45-second ASCII Exam Blueprint, and Policy Matrix.
             """
             
@@ -377,21 +384,21 @@ with tab_generator:
                 )
                 st.success("✅ Saved to internal vault! You can study it anytime in the 'In-System Revision Vault' tab.")
 
-        # Diagram Render Block (Fail-Safe Dual-Engine)
+        # Diagram Render Block (Dual-Engine with Bold Topic Support)
         if st.session_state.get("current_mermaid"):
             st.markdown('<div class="diagram-frame">', unsafe_allow_html=True)
-            st.markdown('<div class="diagram-title">🎨 Context-Specific Visual Model (Technical Mechanics & Relevant Laws)</div>', unsafe_allow_html=True)
+            st.markdown('<div class="diagram-title">🎨 Context-Specific Visual Model (Bold Topics & Embedded Policies)</div>', unsafe_allow_html=True)
             
             mermaid_code = st.session_state["current_mermaid"]
             img_url = st.session_state.get("current_img_url", "")
             
-            # 1. Primary Render: Direct Server-Fetched High-Res Image (No Iframe/CDN Glitches)
+            # 1. Primary Render: Direct Server-Fetched High-Res Image (Renders bold fonts cleanly)
             rendered_via_image = False
             if img_url:
                 try:
                     res = requests.get(img_url, timeout=6)
                     if res.status_code == 200 and len(res.content) > 800:
-                        st.image(res.content, use_container_width=True, caption="Categorical & Chronological Architecture")
+                        st.image(res.content, use_container_width=True, caption="Categorical & Chronological Architecture (Bold Topic Nodes)")
                         rendered_via_image = True
                 except Exception:
                     rendered_via_image = False
@@ -400,7 +407,7 @@ with tab_generator:
             if not rendered_via_image:
                 st.markdown(f"```mermaid\n{mermaid_code}\n```")
                 
-            st.caption("Clean typography, no HTML tags, with substantive provisions and targets embedded directly in nodes.")
+            st.caption("Bold topic headings, clean typography, no HTML tags, with substantive provisions embedded directly in nodes.")
             st.markdown('</div>', unsafe_allow_html=True)
 
         # Full Visual-Dominant Exam Sheet Display
