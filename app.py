@@ -17,7 +17,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom High-Contrast, Eye-Catching Dashboard Styling
+# Custom High-Contrast, Distinguished Card Styling
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
@@ -53,16 +53,16 @@ st.markdown("""
         font-weight: 500;
     }
     
-    /* Visual Frame Card */
-    .diagram-frame {
+    /* Visual Frame Cards */
+    .fig-frame {
         background: #ffffff;
         border: 2px solid #cbd5e1;
         border-radius: 14px;
-        padding: 22px;
-        margin: 22px 0;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
     }
-    .diagram-title {
+    .fig-title {
         font-weight: 800;
         font-size: 1.15rem;
         color: #065f46;
@@ -91,6 +91,19 @@ st.markdown("""
         transform: translateY(-2px);
         box-shadow: 0 6px 18px rgba(5, 150, 105, 0.45);
         color: #ffffff !important;
+    }
+
+    /* Monospace Blueprint Box */
+    .blueprint-box {
+        background-color: #f8fafc;
+        border: 1.5px dashed #0284c7;
+        border-radius: 10px;
+        padding: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        color: #0f172a;
+        overflow-x: auto;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -162,9 +175,9 @@ Every question must be analyzed contextually. NEVER force-fit unrelated laws. Ad
 Cite ONLY the specific acts, standards, or guidelines governing that domain and state WHAT the policy actually mandates (e.g., Food Hygiene & Quality Act 2081 Sec 14 for MRL/traceability, Seeds Act 2045 Sec 16 for Truthful Labeling, Plant Protection Act 2064 for PRA/quarantine, Subsidized Fertilizer Directives for nutrient quotas).
 
 2. STRICT MERMAID RULES (PREVENT ALL PARSER CRASHES):
-- NODE IDENTIFIERS MUST START WITH LETTERS: Never use numbers as IDs like 1, 2, 3! ALWAYS write N1, N2, N3, or A1, A2, B1.
+- NODE IDENTIFIERS MUST START WITH LETTERS: Never use raw numbers as IDs like 1, 2, 3! ALWAYS write N1, N2, N3, or A1, A2, B1.
 - MAKE TOPICS BOLD: The very first line inside every node MUST be bold using **Topic Title**.
-- ABSOLUTELY NEVER USE <br> OR <br/> TAGS: Use real newlines.
+- ABSOLUTELY NEVER USE <br> OR <br/> TAGS: Write real newlines inside strings.
 - Format every node as:
   N1["`**1. Bold Topic Title**
   • Technical Standard: xyz
@@ -173,6 +186,17 @@ Cite ONLY the specific acts, standards, or guidelines governing that domain and 
 - NEVER use rounded parenthesis node shapes like N1(...).
 - ALWAYS end classDef lines with a semicolon (;).
 
+3. MANDATORY: EXTENSIVE DEPTH IN SWOT & MATRICES (>5 POINTS EACH):
+- For SWOT Analysis: You MUST provide MORE THAN 5 POINTS (at least 6-7 distinct, highly technical, substantive points) in EACH of the 4 quadrants:
+  * Strengths (6+ points): Concrete Nepali agro-climatic, genetic, or institutional assets.
+  * Weaknesses (6+ points): Specific structural, input, yield gap, and infrastructure deficits.
+  * Opportunities (6+ points): Commercialization, export, processing, and digital horizons.
+  * Threats (6+ points): Climate vulnerabilities, vector outbreaks, market volatility, and SPS import competition.
+- For 2x2 Decision Matrix / Comparison Matrix:
+  * MUST contain MORE THAN 5 DISTINCT CRITERIA ROWS (at least 6-7 rows comparing Technical Parameters, Field Protocols, Implementing Agencies, Measurable KPIs, Legal Acts, and Risk Mitigations).
+- For Primary Mermaid Diagram:
+  * MUST contain at least 5-6 sequentially connected nodes with bold headings and theme colors.
+
 CATALOG OF 30 DYNAMIC VISUAL ARCHETYPES:
 [Flowchart, Cycle Diagram, Cause–Effect Diagram, Fishbone (Ishikawa), Problem Tree, Solution Tree / Objective Tree, Pyramid Diagram, Venn Diagram, Mind Map, Concept Map, Tree Diagram, Input–Output Model, Value Chain Diagram, SWOT Analysis, 2×2 Matrix, Timeline, Decision Tree, Comparison Matrix, Resource Flow Diagram, Infographic, Bar Graph Blueprint, Line Graph Blueprint, Pie Chart Blueprint, Scatter Plot, Spider/Radar Diagram, Process Diagram, Hierarchy Diagram, Network Diagram, Funnel Diagram, Circular Flow Diagram]
 
@@ -180,18 +204,18 @@ MANDATORY 10-MARK STRUCTURE:
 1. EXECUTIVE SNAPSHOT:
    - Precise 2-line technical definition.
    - Commodity/Topic-specific baseline data from Nepal Agricultural Census 2078 or latest MoALD reports.
-2. PRIMARY CONTEXTUAL MERMAID DIAGRAM:
-   - Strict category/chronological order.
+2. FIGURE 1: PRIMARY CONTEXTUAL MERMAID DIAGRAM:
+   - Strict category/chronological order (5-6 nodes).
    - Every node has a BOLD TOPIC on the first line.
    - Zero <br> tags.
    - Node IDs start with letters (N1, N2...).
    - Embedded substantive policy mandates.
-3. SECONDARY ANALYTICAL VISUAL:
-   - Subject-specific 2x2 Matrix, SWOT, Decision Tree, or Graph Blueprint.
-4. 45-SECOND EXAM HAND-DRAWN BLUEPRINT:
+3. FIGURE 2: EXTENSIVE SWOT ANALYSIS / 2x2 DECISION MATRIX (MORE THAN 5 POINTS PER CATEGORY):
+   - At least 6-7 deep, technical bullet points per quadrant/dimension.
+4. FIGURE 3: 45-SECOND EXAM HAND-DRAWN BLUEPRINT:
    - Clean ASCII sketch matching the exact topic for immediate answer-sheet reproduction.
-5. CONTEXTUAL POLICY & TECHNICAL MATRIX:
-   - Structured table connecting figure nodes to exact technical parameters and what the relevant law specifically mandates.
+5. FIGURE 4: COMPREHENSIVE POLICY & TECHNICAL MATRIX:
+   - Structured table connecting figure nodes to exact technical parameters and what the relevant law specifically mandates (6+ rows).
 """
 
 # ---------------------------------------------------------
@@ -256,7 +280,7 @@ def sanitize_mermaid_code(code: str) -> str:
         
     cleaned_lines = []
     
-    # Remove any existing, broken classDef lines from model
+    # Remove any broken classDef lines from model
     core_lines = [l for l in lines if not l.startswith("classDef")]
     
     # Inject guaranteed clean color definitions with terminating semicolons
@@ -321,7 +345,7 @@ def generate_highres_image_url(mermaid_code: str) -> str:
 st.markdown("""
 <div class="hero-banner">
     <h1>🌱 Loksewa Agri Officer: Master Visual Engine</h1>
-    <p>Zero-Error Mermaid Architecture • Bold Topics • Attractive Colors • No &lt;br&gt; Tags • In-System Vault</p>
+    <p>Zero-Error Mermaid Architecture • >5 Points per Matrix/SWOT • Bold Topics • In-System Vault</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -354,12 +378,12 @@ with tab_generator:
             QUESTION: {user_query}
             WEIGHTAGE: 10 Marks
             
-            STRICT EXECUTION DIRECTIVES:
-            1. NODE IDS MUST START WITH LETTERS: Name nodes N1, N2, N3 (never raw numbers 1, 2, 3).
-            2. BOLD TOPIC: Make the topic/title of every node bold using **Topic Title**.
-            3. ZERO <br> TAGS: Absolutely never use <br> or <br/> tags. Use real newlines.
-            4. CONTEXTUAL POLICY CITATION: Cite ONLY the acts, guidelines, and targets that legally apply to this specific subject matter and state what they mandate.
-            5. Provide Primary Mermaid Diagram, Secondary Analytical Visual, 45-second ASCII Exam Blueprint, and Policy Matrix.
+            CRITICAL EXECUTION MANDATES:
+            1. FIGURE 1 (PRIMARY MERMAID): 5-6 sequentially connected nodes with bold titles, attractive colors, and NO <br> tags. Node IDs must start with letters (N1, N2...).
+            2. FIGURE 2 (SWOT / 2x2 DECISION MATRIX): You MUST provide MORE THAN 5 POINTS (at least 6-7 distinct, substantive points) in each quadrant/dimension!
+            3. FIGURE 3 (ASCII BLUEPRINT): Clean 45-second drawing for exam answer sheet.
+            4. FIGURE 4 (POLICY & TECHNICAL MATRIX): Table with at least 6-7 rows specifying exact technical standards and substantive legal mandates.
+            5. CONTEXTUAL POLICY CITATION: Cite ONLY the acts and guidelines that legally apply to this specific subject matter and state what they mandate.
             """
             
             with st.spinner(f"Analyzing subject context and synthesizing tailored visual architecture with ({active_model})..."):
@@ -397,7 +421,7 @@ with tab_generator:
             if st.session_state.get("current_img_url"):
                 st.markdown(
                     f'<a href="{st.session_state["current_img_url"]}" target="_blank" class="open-window-btn">'
-                    f'🔍 Open Picture in Full Screen (New Window) ↗</a>',
+                    f'🔍 Open Figure 1 in Full Screen (New Window) ↗</a>',
                     unsafe_allow_html=True
                 )
         with col_act2:
@@ -412,8 +436,8 @@ with tab_generator:
 
         # Diagram Render Block (High-Res Image with Native Fallback)
         if st.session_state.get("current_mermaid"):
-            st.markdown('<div class="diagram-frame">', unsafe_allow_html=True)
-            st.markdown('<div class="diagram-title">🎨 Context-Specific Visual Model (Bold Letters & Theme Colors)</div>', unsafe_allow_html=True)
+            st.markdown('<div class="fig-frame">', unsafe_allow_html=True)
+            st.markdown('<div class="fig-title">🎨 Figure 1: Primary Sequential Architecture (Bold Titles & Theme Colors)</div>', unsafe_allow_html=True)
             
             mermaid_code = st.session_state["current_mermaid"]
             img_url = st.session_state.get("current_img_url", "")
@@ -424,7 +448,7 @@ with tab_generator:
                 try:
                     res = requests.get(img_url, timeout=7)
                     if res.status_code == 200 and len(res.content) > 800:
-                        st.image(res.content, use_container_width=True, caption="Categorical Architecture (Bold Nodes & Theme Colors)")
+                        st.image(res.content, use_container_width=True, caption="Figure 1: Primary Sequential Flow (High-Res Vector Canvas)")
                         rendered_via_image = True
                 except Exception:
                     rendered_via_image = False
@@ -433,7 +457,7 @@ with tab_generator:
             if not rendered_via_image:
                 st.markdown(f"```mermaid\n{mermaid_code}\n```")
                 
-            st.caption("Zero syntax errors, bold topic headings, attractive color coding, with substantive legal mandates embedded.")
+            st.caption("Bold topic headings, attractive color coding, zero HTML tags, with substantive legal mandates embedded.")
             st.markdown('</div>', unsafe_allow_html=True)
 
         # Full Visual-Dominant Exam Sheet Display
@@ -470,7 +494,7 @@ with tab_vault:
                         st.rerun()
 
                 if item_mmd:
-                    st.markdown('<div class="diagram-frame">', unsafe_allow_html=True)
+                    st.markdown('<div class="fig-frame">', unsafe_allow_html=True)
                     rendered_vault_img = False
                     if item_url:
                         try:
