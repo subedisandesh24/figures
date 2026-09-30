@@ -15,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom High-Contrast, Eye-Catching Dashboard Styling
+# Custom High-Contrast Dashboard Styling
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
@@ -117,11 +117,10 @@ api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", ""))
 DYNAMIC_CONTEXT_SYSTEM_PROMPT = """
 You are the Chief Examination Answer Architect and Senior Agriculture Specialist for the Nepal Public Service Commission (Gazetted 3rd Class Agriculture Officer).
 
-ABSOLUTE MANDATE: ZERO PRESET OR RECYCLED BOILERPLATE!
-Every question must be analyzed contextually. NEVER force-fit unrelated laws. Adapt dynamically to the specific discipline.
-
-CRITICAL INSTRUCTION - NO MERMAID CODE BLOCKS:
-Do NOT output ```mermaid code blocks. Present all visual models using clean, formatted Markdown visual structures, high-contrast tables, bulleted frameworks, and ASCII blueprints.
+ABSOLUTE QUALITY MANDATE & ANTI-DEGENERATION GUARDRAIL:
+- Write strictly coherent, professional, examination-standard English/Nepali agricultural text.
+- NEVER enter repetitive token loops, gibberish output, or internal instruction artifacts.
+- NEVER output raw ```mermaid code blocks. Present all visuals using clean Markdown flow architecture, structured comparison tables, and ASCII blueprints.
 
 1. CONTEXTUAL POLICY CITATION (SUBSTANCE ONLY):
 Cite ONLY the specific acts, standards, or guidelines governing that domain and state WHAT the policy actually mandates:
@@ -132,17 +131,17 @@ Cite ONLY the specific acts, standards, or guidelines governing that domain and 
 - Agriculture Development Strategy (ADS 2015-2035: Productivity & Commercialization pillars)
 - Constitution of Nepal (Art. 36: Food Sovereignty; Art. 51: State agricultural policies)
 
-2. MANDATORY: EXTENSIVE DEPTH IN SWOT & MATRICES (>5 POINTS EACH):
-- For SWOT Analysis: You MUST provide MORE THAN 5 POINTS (at least 6-7 distinct, highly technical points) in EACH of the 4 quadrants:
+2. EXTENSIVE DEPTH IN SWOT & MATRICES (>5 POINTS EACH):
+- For SWOT Analysis: You MUST provide at least 6 to 7 distinct, highly technical points in EACH quadrant:
   * Strengths (6+ points): Concrete Nepali agro-climatic, genetic, or institutional assets.
   * Weaknesses (6+ points): Specific structural, input, yield gap, and infrastructure deficits.
   * Opportunities (6+ points): Commercialization, export, processing, and digital horizons.
   * Threats (6+ points): Climate vulnerabilities, vector outbreaks, market volatility, and SPS competition.
 - For 2x2 Decision Matrix / Analytical Comparison:
-  * MUST contain MORE THAN 5 DISTINCT CRITERIA (at least 6-7 rows comparing Technical Parameters, Field Protocols, Implementing Agencies, Measurable KPIs, Legal Acts, and Risk Mitigations).
+  * Must contain at least 6 to 7 criteria rows comparing Technical Parameters, Field Protocols, Implementing Agencies, KPIs, Legal Acts, and Risk Mitigations.
 
-3. ABSOLUTELY ZERO <br> TAGS:
-Never write <br> or <br/> tags anywhere in the output. Use standard markdown line breaks.
+3. ZERO <br> TAGS:
+Never write <br> or <br/> tags anywhere. Use standard markdown line breaks.
 
 MANDATORY 10-MARK STRUCTURE:
 1. EXECUTIVE SNAPSHOT:
@@ -161,7 +160,7 @@ MANDATORY 10-MARK STRUCTURE:
 """
 
 # ---------------------------------------------------------
-# Robust Helper Functions
+# Robust Helper Functions & Anti-Degeneration Filter
 # ---------------------------------------------------------
 def get_working_groq_model(client: Groq) -> str:
     priority_order = [
@@ -183,14 +182,30 @@ def get_working_groq_model(client: Groq) -> str:
         pass
     return "openai/gpt-oss-120b"
 
-def sanitize_markdown_text(text: str) -> str:
-    """Removes stray <br> tags and any unwanted raw mermaid blocks."""
+def clean_and_validate_output(text: str) -> str:
+    """
+    Cleans output, strips HTML tags, and protects against token collapse loops.
+    """
     if not text:
         return ""
-    # Strip <br> tags
+    
+    # 1. Eradicate stray <br> tags
     text = re.sub(r'(?:<br\s*/?>|&lt;br\s*/?&gt;)', '\n', text, flags=re.IGNORECASE)
-    # Strip any stray mermaid blocks if generated
+    
+    # 2. Strip any stray raw mermaid code blocks
     text = re.sub(r'```(?:mermaid|Mermaid)[\s\S]*?```', '', text)
+    
+    # 3. Detect and eliminate repetition loops (e.g. word repeated 4+ times consecutively)
+    text = re.sub(r'(\b[\w\'-]+\b)(?:\s+\1){3,}', r'\1', text, flags=re.IGNORECASE)
+    
+    # 4. Strip any trailing pseudo-code glitch artifacts
+    glitch_markers = ["Instructions for candidates:", "Sketch the six numbered boxes", "RTR wipe", "%*/}"]
+    for marker in glitch_markers:
+        if marker in text:
+            # Cut off the text before the glitch starts
+            parts = text.split(marker)
+            text = parts[0]
+            
     return text.strip()
 
 # ---------------------------------------------------------
@@ -199,7 +214,7 @@ def sanitize_markdown_text(text: str) -> str:
 st.markdown("""
 <div class="hero-banner">
     <h1>🌱 Loksewa Agri Officer: Master Visual Engine</h1>
-    <p>Contextual Policy Mandates • Extensive SWOT (>5 Points) • 2x2 Decision Matrix • In-System Vault</p>
+    <p>Zero-Error Architecture • Extensive SWOT (>5 Points) • Substantive Policies • In-System Vault</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -250,12 +265,12 @@ with tab_generator:
                             {"role": "user", "content": full_prompt}
                         ],
                         model=active_model,
-                        temperature=0.2,
+                        temperature=0.35,  # Prevents deterministic token-loop collapse
                         max_tokens=4096
                     )
                     
                     raw_answer = completion.choices[0].message.content
-                    clean_answer = sanitize_markdown_text(raw_answer)
+                    clean_answer = clean_and_validate_output(raw_answer)
                     
                     st.session_state["current_question"] = user_query
                     st.session_state["current_answer"] = clean_answer
@@ -283,7 +298,7 @@ with tab_generator:
 # =========================================================
 with tab_vault:
     st.subheader("📚 In-System Revision Vault")
-    st.caption("Saved answers remain stored inside the server database. No files are downloaded to your personal computer.")
+    st.caption("Saved answers and diagrams remain stored inside the server database. No files are downloaded to your personal computer.")
     
     saved_items = get_all_vault_items()
     
@@ -294,7 +309,7 @@ with tab_vault:
             item_id, item_time, item_q, item_ans = item
             
             with st.expander(f"📌 {item_q} (Saved: {item_time})", expanded=False):
-                if st.button("🗑️ Delete from Vault", key=f"del_{item_id}", use_container_width=True):
+                if st.button("🗑️ Delete from Vault", key=f"del_{item_id}"):
                     delete_vault_item(item_id)
                     st.rerun()
 
