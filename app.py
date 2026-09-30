@@ -5,14 +5,14 @@ import base64
 import requests
 import os
 
-# Page configuration - Clean, wide workspace
+# Page Configuration - Clean, full-width interface
 st.set_page_config(
     page_title="Loksewa Agri Officer Engine",
     page_icon="🌾",
     layout="wide"
 )
 
-# Fetch API key directly from secrets or environment (No sidebar input)
+# Fetch API key directly from secrets or environment (No sidebar inputs)
 api_key = st.secrets.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", None))
 
 # Master system prompt enforcing descriptive, card-style diagrams with embedded policies
@@ -70,7 +70,7 @@ def fetch_highres_diagram_png(mermaid_code: str):
     except Exception:
         return None
 
-# --- Main App Interface ---
+# --- Main App Interface (No Sidebar) ---
 st.title("🌾 Loksewa Agriculture Officer Examination Engine")
 st.caption("10-Mark Answer Architect | Descriptive Policy-Embedded Visuals | Exam Hall Blueprints")
 
@@ -88,7 +88,7 @@ with col_btn:
 # Processing
 if submit_btn:
     if not api_key:
-        st.error("⚠️ GROQ_API_KEY is not set. Please add it to your Streamlit App Secrets.")
+        st.error("⚠️ GROQ_API_KEY is not set. Please add it to your Streamlit App Settings -> Secrets.")
     elif not user_query.strip():
         st.warning("⚠️ Please enter a question or topic.")
     else:
@@ -107,7 +107,7 @@ if submit_btn:
         
         with st.spinner("Analyzing question, building descriptive visual capsules, and linking verified policies..."):
             try:
-                # Uses Groq's high-speed, high-reasoning 70B model directly
+                # Uses Groq Llama 3.3 70B directly
                 completion = client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
